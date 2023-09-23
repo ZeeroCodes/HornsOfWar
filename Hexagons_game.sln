@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32901.215
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Hexagons_game", "Hexagons_game.pyproj", "{22FD07C5-94CD-484A-A6DD-A5ABDA058AD8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{22FD07C5-94CD-484A-A6DD-A5ABDA058AD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22FD07C5-94CD-484A-A6DD-A5ABDA058AD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {362857E9-C04A-4535-96A5-5382702A5F57}
+	EndGlobalSection
+EndGlobal
