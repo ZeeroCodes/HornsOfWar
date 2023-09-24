@@ -1,25 +1,29 @@
 import pygame
 import math
 import os
+import time
 
 from pygame.locals import *
-from Button import Button
+from Scripts.Widgets.Button import Button
+
+RADIUS = 50
 
 BLACK = pygame.Color(0, 0, 0)
 WHITE = pygame.Color(255, 255, 255)
 RED = pygame.Color(255, 0, 0)
 BLUE = pygame.Color(0, 0, 255)
 GREEN = pygame.Color(0, 255, 0)
+YELLOW = pygame.Color(255, 255, 0)
 GREY = pygame.Color(80, 80, 80)
 GOLD = pygame.Color(204, 204, 0)
 
-RADIUS = 50
 
 class MapView(object):
     def __init__(self):
 
         pygame.init()
 
+        #self.screen_resolution = (1920, 1080)
         self.screen_resolution = (1366, 768)
         #self.screen_resolution = (800,600)
 
@@ -30,14 +34,33 @@ class MapView(object):
         self.grass_tile = pygame.image.load(os.path.abspath(os.getcwd()) + "\Images\\HexTileset\\Terrain\\Grass.png").convert_alpha()
         self.grass_tile = pygame.transform.scale(self.grass_tile, (RADIUS*2, RADIUS*2))
 
+        self.money_image = pygame.image.load(os.path.abspath(os.getcwd()) + "\Images\\HexTileset\\Money.png").convert_alpha()
+        self.money_image = pygame.transform.scale(self.money_image, (75,75))
+
         # Creation of the exit button
         self.exit_button = Button((10,10),self.screen, "exit_button.png", "exit_button_pressed.png")
 
         # Creation of the new unit button
         self.new_button = Button((100,10),self.screen, "new_button.png", "new_button_pressed.png")
 
+        self.font = pygame.font.SysFont(None, 16)
+        self.winning_font = pygame.font.SysFont(None, 96)
+
+    
+
+    def print_position(self, tile):
+       
+        img = self.font.render(str(tile.get_position()), False, BLACK)
+        pixel_position = tile.get_pixel_position()
+        pixel_position = (pixel_position[0], pixel_position[1] - 35)
+        self.screen.blit(img, pixel_position)
 
 
+    def print_winner_team(self, team):
+
+        img = self.font.render("Wins team " + str(team), False, BLACK)
+        pixel_position = (300, 25)
+        self.screen.blit(img, pixel_position)
 
     # SET_RESOLUTION
     def set_resolution(self, screen_resolution):
@@ -51,9 +74,9 @@ class MapView(object):
 
 
 
-    # DRAW_HEXAGONS
+    # DRAW_HEXAGON
     # Draws one hexagon having the center and the radius
-    def draw_hexagon(self, center, radius = RADIUS, thick = 5, colour = BLACK):# BLACK
+    def draw_hexagon(self, center, colour = BLACK, radius = RADIUS, thick = 5):
         points = [(center[0] + radius, center[1]),
                  (center[0] + int(radius*math.cos(math.pi/3)), center[1] + int(radius*math.sin(math.pi/3))),
                  (center[0] - int(radius*math.cos(math.pi/3)), center[1] + int(radius*math.sin(math.pi/3))),
@@ -66,7 +89,7 @@ class MapView(object):
 
     # PAINT_HEXAGON
     # Draws one hexagon at the desired center and fills it with the color passed by argument
-    def paint_hexagon(self, center, radius = RADIUS, colour = WHITE):
+    def paint_hexagon(self, center, colour = WHITE, radius = RADIUS):
         centero = (RADIUS, RADIUS)
         points = [(centero[0] + radius, centero[1]),
                  (centero[0] + int(radius*math.cos(math.pi/3)), centero[1] + int(radius*math.sin(math.pi/3))),
@@ -85,31 +108,73 @@ class MapView(object):
     def load_grass(self, center):
         self.screen.blit(self.grass_tile, (center[0] - RADIUS, center[1] - RADIUS + 5))
 
+  
+    def print_money(self, money):
+        self.screen.blit(self.money_image, (170, 25))
+
+        img = self.font.render(str(money), False, BLACK)
+        pixel_position = (205, 38)
+        self.screen.blit(img, pixel_position)
 
 
     # PRINT_UNIT
     # Prints one unit in the map
-    def print_unit(self, unit, center_pos):
+    def print_unit(self, unit, tile_dictionary):
+        #center_pos = tile_dictionary[unit.get_position()].get_pixel_position()
+        center_pos = unit.get_pixel_position()
+        max_health = unit.get_max_health()
+        health = unit.get_health()
+        life = int((health*40)/max_health)
         image = unit.get_image().convert_alpha()
+
+        if unit.get_moved():
+            self.paint_hexagon(unit.get_pixel_position(), pygame.Color(255, 0, 0, 80))
+
         self.screen.blit(image, (center_pos[0]-image.get_width()/2, center_pos[1]-image.get_height()/2)) # Draws button
         pygame.draw.rect(self.screen, GREY, pygame.Rect(center_pos[0] + 20, center_pos[1]-21, 5, 42))
-        life = int((unit.get_health()*40)/(unit.get_max_health()))
+        
+
+        # If life is full pint green bar
         if life == 40:
+
             pygame.draw.rect(self.screen, GREEN, pygame.Rect(center_pos[0] + 21, center_pos[1]-20, 3, 40))
+
+        # If life is more than half bar
         elif life >= 20:
-            pygame.draw.rect(self.screen, GREEN, pygame.Rect(center_pos[0] + 21, center_pos[1]-(20-(40-life)), 3, 40-(40-life)))
+
+            # When life is above 25 of 40, print the bar with GREEN
+            if life > 25:
+
+                pygame.draw.rect(self.screen, GREEN, pygame.Rect(center_pos[0] + 21, center_pos[1]-(20-(40-life)), 3, 40-(40-life)))
+            
+            # When life reaches 25 of 40, print the bar with yellow
+            else:
+
+                pygame.draw.rect(self.screen, YELLOW, pygame.Rect(center_pos[0] + 21, center_pos[1]-(20-(40-life)), 3, 40-(40-life)))
+
         else:
-            pygame.draw.rect(self.screen, GREEN, pygame.Rect(center_pos[0] + 21, center_pos[1]+(20-(40-life)), 3, 40-(40-life)))
+
+            # When life is above 10 over 40 print with yellow
+            if life > 10:
+
+                pygame.draw.rect(self.screen, YELLOW, pygame.Rect(center_pos[0] + 21, center_pos[1]+(20-life), 3, 40-(40-life)))
+            
+            # If life is over 10 of 40, print it in red
+            else:
+
+                pygame.draw.rect(self.screen, RED, pygame.Rect(center_pos[0] + 21, center_pos[1]+(20-life), 3, 40-(40-life)))
 
 
-    
+
     # PRINT_UNITS
     # Prints every unit on the map
-    def print_units(self, friendly_units, enemy_units, tile_dictionary):
-        for unit in friendly_units.get_unit_array():
-            self.print_unit(unit, tile_dictionary[unit.get_position()].get_pixel_position())
-        for unit in enemy_units.get_unit_array():
-            self.print_unit(unit, tile_dictionary[unit.get_position()].get_pixel_position())
+    def print_units(self, team_units, tile_dictionary):
+
+        for team in team_units[1:]:
+
+            for unit in team.get_unit_array():
+
+                self.print_unit(unit, tile_dictionary)
 
 
 
@@ -151,9 +216,9 @@ class MapView(object):
 
     # PRINT_MOUSE_HEXAGON
     # Draws the hexagon where the mouse pointer is at
-    def print_mouse_hexagon(self, mouse_position):
+    def print_mouse_hexagon(self, mouse_position, color = GOLD):
         if mouse_position != None:
-            self.draw_hexagon(mouse_position, RADIUS, 5, GOLD)
+            self.draw_hexagon(mouse_position, color)
 
 
 
@@ -161,18 +226,25 @@ class MapView(object):
     # Paint an hexagon for every movement position
     def print_unit_movements(self, unit_movements):
         for tile in unit_movements:
-            self.paint_hexagon(tile.get_pixel_position(), RADIUS, pygame.Color(0, 255, 0, 80))
-            self.draw_hexagon(tile.get_pixel_position(), RADIUS, 5)
+            self.paint_hexagon(tile.get_pixel_position(), pygame.Color(0, 255, 0, 80))
+            self.draw_hexagon(tile.get_pixel_position())
         
 
     
     # PRINT_PATH
     # Draws lines between path positions
-    def print_path(self, path):
+    def print_path(self, path, colour = GOLD):
         nodebase1 = path[0]
-        for tile in path:
-            pygame.draw.line(self.screen, GOLD, nodebase1.get_pixel_position(), tile.get_pixel_position(), 4)
+        for tile in path[1:]: 
+            pygame.draw.line(self.screen, colour, nodebase1.get_pixel_position(), tile.get_pixel_position(), 4)
             nodebase1 = tile
+
+    
+
+    # CLEAR_SCREEN
+    # Paints all screen with white
+    def clear_screen(self):
+        self.screen.fill(WHITE)
 
 
 
@@ -180,15 +252,13 @@ class MapView(object):
     # Draws the GUI part of the map
     def draw_map(self, tiles_dictionary):
 
-        self.screen.fill(WHITE) # Paints background
+        self.clear_screen() # Paints background
 
         for value in tiles_dictionary.values():
             self.load_grass(value.get_pixel_position()) # Loads every tile of grass
             self.draw_hexagon(value.get_pixel_position())
-            
-        # Height of the hexagon
-
-        # print selected unit hexagon and movement tiles       
+            self.print_position(value)
+  
         
                 
         

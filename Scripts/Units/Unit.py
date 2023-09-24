@@ -1,19 +1,35 @@
+from Scripts.Widgets.NodeBase import NodeBase
+
 import pygame
 import os
 
 class Unit():
 
-    def __init__(self, image_path, position = (0,0), max_health = 100, damage = 10, movement = 2, friendly = True):
+    def __init__(self, image_path, position = NodeBase((0,0), (50,150)), team = 1, friendly = True, max_health = 100, damage = 10, movement = 2):
         
         self.max_health = max_health
         self.health = max_health
         self.damage = damage
         self.movement = movement
-        self.position = position
+        self.node_position = position
         self.alive = True
+        self.moved = False
         self.friendly = friendly
+        self.team = team
         self.warrior_image = pygame.image.load(os.path.abspath(os.getcwd()) + image_path)
         self.warrior_image = pygame.transform.scale(self.warrior_image, (60, 70))
+    
+    def set_moved(self, moved):
+        self.moved = moved
+
+    def get_moved(self):
+        return self.moved
+
+    def set_team(self, team):
+        self.team = team
+
+    def get_team(self):
+        return self.team
 
     def get_friendly(self):
         return self.friendly
@@ -40,7 +56,13 @@ class Unit():
         return self.movement
 
     def get_position(self):
-        return self.position
+        return self.node_position.get_position()
+
+    def get_nodebase(self):
+        return self.node_position
+
+    def get_pixel_position(self):
+        return self.node_position.get_pixel_position()
 
     def set_damage(self, damage):
         self.damage = damage
@@ -62,8 +84,15 @@ class Unit():
     def set_movement(self, movement):
         self.movement = movement
 
-    def set_position(self, position):
-        self.position = position
+    def set_position(self, nodebase):
+        self.node_position.set_position(nodebase.get_position())
+        self.node_position.set_pixel_position(nodebase.get_pixel_position())
+
+    def toString(self):
+        print("Unit in team: " + str(self.team) + " on tile: " + str(self.node_position.get_position()) + " with " + str(self.health) + " of " + str(self.max_health) + " with " + str(self.damage) + " damage")
+
+
+
   
 
 

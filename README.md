@@ -1,2 +1,2 @@
-# HornsOfWar
-Making a 2D RPG strategy based-turn game!
+# hexagon_game
+Development of a turn-strategy-based hexagon game

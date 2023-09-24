@@ -1,7 +1,7 @@
 import pygame
 from pygame.locals import *
 
-from Map import Map
+from Scripts.Map import Map
 
 class App:
 

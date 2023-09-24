@@ -12,21 +12,24 @@ class Button():
         self.screen = screen
 
         # Loads normal button image
-        self.image = pygame.image.load(os.path.abspath(os.getcwd()) + "\Images\\" + image_name).convert_alpha()
+        self.image = pygame.image.load(os.path.abspath(os.getcwd()) + "\Images\\Buttons\\" + image_name).convert_alpha()
         self.image = pygame.transform.scale(self.image, (80, 60))
 
         # If theres button pressed image, loads it
         if image_pressed_name == "":
-            self.pressed_image = pygame.image.load(os.path.abspath(os.getcwd()) + "\Images\\" + image_name).convert_alpha()
+            self.pressed_image = pygame.image.load(os.path.abspath(os.getcwd()) + "\Images\\Buttons\\" + image_name).convert_alpha()
             self.pressed_image = pygame.transform.scale(self.pressed_image, (80, 60))
         else:
-            self.pressed_image = pygame.image.load(os.path.abspath(os.getcwd())+"\Images\\" + image_pressed_name).convert_alpha()
+            self.pressed_image = pygame.image.load(os.path.abspath(os.getcwd())+"\Images\\Buttons\\" + image_pressed_name).convert_alpha()
             self.pressed_image = pygame.transform.scale(self.pressed_image, (80, 60))
 
         self.rect = self.image.get_rect()
         self.rect.topleft = position
 
         self.clicked = False
+
+    def get_rect(self):
+        return self.rect
 
     # DRAW
     # draws button at the desired position

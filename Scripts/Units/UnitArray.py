@@ -1,4 +1,4 @@
-from Unit import Unit
+from Scripts.Units.Unit import Unit
 
 class UnitArray():
 
@@ -7,6 +7,13 @@ class UnitArray():
     
     def get_unit_array(self):
         return self.unit_array
+
+
+    def print_units(self):
+        print("units in array: ")
+        for unit in self.unit_array:
+            print(unit)
+            unit.toString()
 
 
     # IS_EMPTY
@@ -39,6 +46,7 @@ class UnitArray():
     # REMOVE_UNIT
     # deletes a unit from the vector
     def remove_unit(self, deleted_unit):
+
         self.unit_array.remove(deleted_unit)
 
 
@@ -60,10 +68,17 @@ class UnitArray():
 
             
     
-    def modify_unit_position(self, unit, position):
+    def modify_unit_position(self, unit, nodebase):
         for i in range(len(self.unit_array)):
             if unit == self.unit_array[i]:
-                self.unit_array[i].set_position(position)
+                self.unit_array[i].set_position(nodebase)
+
+
+
+    def set_unit_moved(self, unit, moved):
+        for i in range(len(self.unit_array)):
+            if unit == self.unit_array[i]:
+                self.unit_array[i].set_moved(moved)
 
 
 
