@@ -1,14 +1,14 @@
 import pygame
 import math
-import time
-
 import numpy as np
-
 from pygame.locals import *
-from Scripts.Widgets.NodeBase import NodeBase
-from Scripts.Units.Humans.HumanWarrior.HumanWarrior import HumanWarrior
+
 from Scripts.MapModel import MapModel
 from Scripts.MapView import MapView
+
+from Scripts.Widgets.NodeBase import NodeBase
+
+from Scripts.Units.Humans.HumanWarrior.HumanWarrior import HumanWarrior
 from Scripts.Units.Undead.UndeadGhost.UndeadGhost import UndeadGhost
 
 RADIUS = 50
@@ -39,7 +39,7 @@ class Map(object):
         self.last_path_position = None
         self.last_unit_in_last_position = False
 
-        self.movement_speed = 1 # 1 = Fast
+        self.movement_speed = 3 # 1 = Fast
                                 # 2 = Medium
                                 # 3 = Slow
 
@@ -329,13 +329,13 @@ class Map(object):
                 else: 
 
                     # If the position is reachable
-                    ###if self.map_model.reachable(mouse_position):
+                    if self.map_model.reachable(mouse_position):
 
                         # Updates unit position
-                        ###self.start_movement(self.map_model.get_path(), selected_unit)
-                        ###self.map_model.set_unit_moved(selected_unit, True)
-                        ###self.map_model.set_path()
-                    self.map_model.set_selected_unit_position(NodeBase(mouse_position, mouse_pixel_position)) ###
+                        self.start_movement(self.map_model.get_path(), selected_unit)
+                        self.map_model.set_unit_moved(selected_unit, True)
+                        self.map_model.set_path()
+                    self.map_model.set_selected_unit_position(NodeBase(mouse_position, mouse_pixel_position))
                     
                     # Deselects unit
                     self.map_model.set_selected_unit(None) 
@@ -359,8 +359,8 @@ class Map(object):
         if self.map_model.get_selected_unit() != None:
 
             # Get and print movement tiles of the selected unit
-            ###selected_unit_movements = self.map_model.get_movement_positions(self.map_model.get_selected_unit())
-            ###self.map_view.print_unit_movements(selected_unit_movements)
+            selected_unit_movements = self.map_model.get_movement_positions(self.map_model.get_selected_unit())
+            self.map_view.print_unit_movements(selected_unit_movements)
             
             # Print a less transparent hexagon and a blue edge at the selected unit
             self.map_view.paint_hexagon(self.map_model.get_coords_by_position(self.map_model.get_selected_unit().get_position()), pygame.Color(0, 255, 0, 150))
@@ -395,9 +395,9 @@ class Map(object):
                         self.map_model.get_new_path(nodebase1, nodebase2)
 
                     # If the path is not empty, print it
-                    ###if self.map_model.get_path():
+                    if self.map_model.get_path():
 
-                        ###self.map_view.print_path(self.map_model.get_path())
+                        self.map_view.print_path(self.map_model.get_path())
                 
                 # If the hexagon is occupied
                 else:
@@ -593,7 +593,7 @@ class Map(object):
         self.map_view.draw_map(self.map_model.get_tile_dictionary())
         #print("Testing")
         #print(self.moving)
-        ###self.map_view.print_money(self.map_model.get_money())
+        self.map_view.print_money(self.map_model.get_money())
 
         # Checks new button
         if self.map_view.new_button_pushed():
@@ -608,7 +608,7 @@ class Map(object):
         # Print all units
         self.map_view.print_units(self.map_model.get_team_units(), self.map_model.get_tile_dictionary())
 
-        ###self.check_win_conditions()
+        self.check_win_conditions()
 
         if not self.finished:
 
@@ -632,7 +632,7 @@ class Map(object):
 
                 if self.map_model.all_units_in_team_moved(self.turn):
                     print("Turno del equipo 2")
-                    ###self.turn = 2
+                    self.turn = 2
 
                 elif self.map_view.right_mouse_button_pushed() and self.clicked == False:
 
