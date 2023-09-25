@@ -1,0 +1,16 @@
+*************************************************************************
+Template:
+
+Who : Raul Calatayud Ferre
+
+Date : D / M / Y
+
+Commit number: xxx
+
+Task number : xxxx
+
+V : 00.00.00 (game_version.big_feature.feature)
+
+Description : 
+
+**************************************************************************
