@@ -1,6 +1,7 @@
 import pygame
 import math
 import os
+import numpy as np
 
 from pygame.locals import *
 from Scripts.Widgets.NodeBase import NodeBase
@@ -74,13 +75,6 @@ class MapModel(object):
 
 
 
-    # GET_ENEMY_UNITS
-    # Returns enemy units array
-    def get_enemy_units(self):
-        return self.enemy_units
-
-
-
     # GET_SELECTED_UNIT
     # Returns the selected unit
     def get_selected_unit(self):
@@ -120,7 +114,8 @@ class MapModel(object):
     def get_team_units(self):
         return self.team_units
 
-
+    def get_units_from_team(self, team):
+        return self.team_units[team]
 
     # GET_GROUP
     # Returns the group of teams the unit team is in
@@ -830,6 +825,44 @@ class MapModel(object):
             self.selected_unit_attack_movements = final_attacking_positions
 
         return final_attacking_positions
+    
+
+
+    # GET_ENEMY_TEAMS
+    # Return the teams that are enemies from the argument team
+    def get_enemy_teams(self, unit_team):
+        enemy_teams = list()
+        for teams in self.team_groups:
+            if unit_team not in teams:
+                for team in teams:
+                    enemy_teams.append(team)
+        return enemy_teams
+
+
+
+    # GET_NEAREST_ENEMY_UNIT
+    # Return the nearest enemy unit from the argument unit
+    def get_nearest_enemy_unit(self, origin_unit):
+
+        enemy_teams = self.get_enemy_teams(origin_unit.get_team())
+        nearest_enemy_unit = None
+        shortest_path_to_nearest_enemy_unit = self.map_data.get_rows() * self.map_data.get_cols()
+
+        for team in enemy_teams:
+
+            enemy_units = self.get_units_from_team(team).get_unit_array()
+
+            for enemy_unit in enemy_units:
+
+                distance = self.movements_between_positions(origin_unit.get_nodebase(), enemy_unit.get_nodebase())
+
+                if distance < shortest_path_to_nearest_enemy_unit:
+
+                    shortest_path_to_nearest_enemy_unit = distance
+                    nearest_enemy_unit = enemy_unit
+
+        return nearest_enemy_unit
+        
 
 
 

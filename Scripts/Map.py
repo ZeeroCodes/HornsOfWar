@@ -473,8 +473,11 @@ class Map(object):
                 self.map_view.print_mouse_hexagon(mouse_pixel_position, RED)
 
     
-
+    # AI_TURN
+    # Manages the movement and attack of every enemy unit
     def AI_turn(self, unit):
+
+        self.map_model.get_nearest_enemy_unit(unit)
 
         # Get available movements and units that the unit can attack
         available_movements = self.map_model.get_movement_positions(unit)
@@ -487,7 +490,8 @@ class Map(object):
         # For every available movement calculate its value
         for tile in available_movements:
 
-            movement_value = int(10*terrain)
+            movement_value = int(10*terrain) - self.map_model.movements_between_positions(unit.get_nodebase(), 
+                                                                                          self.map_model.get_nearest_enemy_unit(unit).get_nodebase())
             movement_dictionary[(tile.get_position(), None)] = movement_value
 
         # For every unit it can attack calculate its value
