@@ -9,7 +9,9 @@ from Scripts.MapView import MapView
 from Scripts.Widgets.NodeBase import NodeBase
 
 from Scripts.Units.Humans.HumanWarrior.HumanWarrior import HumanWarrior
+from Scripts.Units.Humans.HumanHero.HumanHero import HumanHero
 from Scripts.Units.Undead.UndeadGhost.UndeadGhost import UndeadGhost
+from Scripts.Units.Undead.UndeadHero.UndeadHero import UndeadHero
 
 RADIUS = 50
 
@@ -50,21 +52,18 @@ class Map(object):
         ghost = UndeadGhost(nodebase1, 2, False)
         self.map_model.add_unit(ghost, 2)
         nodebase2 = NodeBase((2,3), (275, 365))
-        ghost2 = UndeadGhost(nodebase2, 2, False)
+        ghost2 = UndeadHero(nodebase2, 2, False)
         self.map_model.add_unit(ghost2, 2)
         nodebase1 = NodeBase((4,1), (125, 537))
         ghost = UndeadGhost(nodebase1, 2, False)
         self.map_model.add_unit(ghost, 2)
-        nodebase2 = NodeBase((4,0), (50, 494))
-        ghost2 = UndeadGhost(nodebase2, 2, False)
-        self.map_model.add_unit(ghost2, 2)
 
         nodebase1 = NodeBase((1,4), (350, 236))
         ghost = HumanWarrior(nodebase1)
         self.map_model.add_unit(ghost)
-        #nodebase2 = NodeBase((4,0), (50, 494))
-        #ghost2 = HumanWarrior(nodebase2)
-        #self.map_model.add_unit(ghost2)
+        nodebase2 = NodeBase((4,0), (50, 494))
+        ghost2 = HumanHero(nodebase2)
+        self.map_model.add_unit(ghost2)
         
     
 
