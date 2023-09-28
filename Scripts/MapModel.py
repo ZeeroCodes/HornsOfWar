@@ -256,7 +256,6 @@ class MapModel(object):
         for unit in self.team_units[team].get_unit_array():
 
             #print(unit.get_moved())
-
             if not unit.get_moved():
                 #print("Una que no")
                 return False
@@ -394,11 +393,12 @@ class MapModel(object):
         if isinstance(position, NodeBase):
 
             position = position.get_position()
+        #print(f"Checking {position}")
 
         for team in self.team_units[1:]:
 
             for unit in team.get_unit_array():
-
+                #unit.toString()
                 if position == unit.get_position():
 
                     return True
@@ -643,7 +643,7 @@ class MapModel(object):
 
     # GET_FEASIBLE_NEIGHBOURS
     # Returns all neighbours of the argument position which are inside the map and not occupied by a unit
-    def get_feasible_neighbours(self, actual_nodebase):
+    def get_feasible_neighbours(self, actual_nodebase, final_nodebase):
 
         available_neighbours = set()
 
@@ -663,7 +663,7 @@ class MapModel(object):
 
                 unit = self.get_unit_in_position(next_pos)
 
-                if not self.occupied(next_pos) or (unit != None and not unit.get_friendly()):
+                if not self.occupied(next_pos) or next_pos == final_nodebase.get_position():
 
                     neighbour_nodebase = NodeBase(next_pos, self.get_coords_by_position(next_pos))
                     neighbour_nodebase.set_parent(actual_nodebase)
@@ -738,27 +738,28 @@ class MapModel(object):
 
         if initial_nodebase.get_position() == final_nodebase.get_position():
             return [initial_nodebase]
-
+        
         open_list = dict()
         closed_list = dict()
         open_list[initial_nodebase.get_position()] = initial_nodebase
         actual_nodebase = initial_nodebase
-        initial_nodebase.toString()
-        final_nodebase.toString()
+ 
         while(actual_nodebase.get_position() != final_nodebase.get_position()):
-            
             # Get nearest hexagon by its F
             actual_nodebase = open_list.pop(self.nearest_neighbour(open_list).get_position())
 
             if actual_nodebase.get_position() == initial_nodebase.get_position() or not self.occupied(actual_nodebase.get_position()):
-
+                
                 # Add the actual position to the closed list
                 if actual_nodebase.get_position() not in closed_list.keys():
 
                     closed_list[actual_nodebase.get_position()] = actual_nodebase
                     # Get all its feasible neighbours
-                    neighbours = list(self.get_feasible_neighbours(actual_nodebase))
-
+                    neighbours = list(self.get_feasible_neighbours(actual_nodebase, final_nodebase))
+                    #print("Checking")
+                    #actual_nodebase.toString()
+                    #for tile in neighbours:
+                    #    tile.toString()
                     for neighbour in neighbours:
 
                         # Sets G, H, F values to the neighbours

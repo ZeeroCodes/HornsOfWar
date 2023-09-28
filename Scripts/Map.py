@@ -46,7 +46,7 @@ class Map(object):
         self.turn = 1
         self.finished = False
 
-        nodebase1 = NodeBase((1,4), (350, 236))
+        nodebase1 = NodeBase((2,0), (50, 322))
         ghost = UndeadGhost(nodebase1, 2, False)
         self.map_model.add_unit(ghost, 2)
         nodebase2 = NodeBase((2,3), (275, 365))
@@ -59,7 +59,7 @@ class Map(object):
         ghost2 = UndeadGhost(nodebase2, 2, False)
         self.map_model.add_unit(ghost2, 2)
 
-        nodebase1 = NodeBase((2,0), (50, 322))
+        nodebase1 = NodeBase((1,4), (350, 236))
         ghost = HumanWarrior(nodebase1)
         self.map_model.add_unit(ghost)
         #nodebase2 = NodeBase((4,0), (50, 494))
@@ -300,7 +300,7 @@ class Map(object):
                             movement_path.append(selected_unit.get_nodebase())
 
                             # Start movement
-                            self.print_path(movement_path)
+                            #self.print_path(movement_path)
                             self.start_movement(movement_path, selected_unit)
                             self.map_model.set_path()
                             self.map_model.set_unit_moved(selected_unit, True)
@@ -335,7 +335,7 @@ class Map(object):
                         self.start_movement(self.map_model.get_path(), selected_unit)
                         self.map_model.set_unit_moved(selected_unit, True)
                         self.map_model.set_path()
-                    self.map_model.set_selected_unit_position(NodeBase(mouse_position, mouse_pixel_position))
+                        self.map_model.set_selected_unit_position(NodeBase(mouse_position, mouse_pixel_position))
                     
                     # Deselects unit
                     self.map_model.set_selected_unit(None) 
@@ -476,23 +476,24 @@ class Map(object):
     # AI_TURN
     # Manages the movement and attack of every enemy unit
     def AI_turn(self, unit):
-
-        self.map_model.get_nearest_enemy_unit(unit)
-
+        
         # Get available movements and units that the unit can attack
         available_movements = self.map_model.get_movement_positions(unit)
         available_movements.append(unit.get_nodebase())
         attacking_movements = self.map_model.get_attacking_positions(available_movements, unit)
-        self.print_path(available_movements)
         movement_dictionary = dict()
         terrain = 1.0
+
+        enemy_unit = self.map_model.get_nearest_enemy_unit(unit)
+        path = self.map_model.get_new_path(unit.get_nodebase(), enemy_unit.get_nodebase())
 
         # For every available movement calculate its value
         for tile in available_movements:
 
-            movement_value = int(10*terrain) - self.map_model.movements_between_positions(tile, 
-                                                                                          self.map_model.get_nearest_enemy_unit(unit).get_nodebase())
+            movement_value = int(10*terrain) - self.map_model.movements_between_positions(tile.get_nodebase(), enemy_unit.get_nodebase())
             movement_dictionary[(tile.get_position(), None)] = movement_value
+
+        movement_dictionary[(path[len(path)-enemy_unit.get_movement()-1].get_position(), None)] = int(10*terrain)
 
         # For every unit it can attack calculate its value
         for tile in attacking_movements:
