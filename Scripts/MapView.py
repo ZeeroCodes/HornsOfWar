@@ -5,6 +5,8 @@ import time
 
 from pygame.locals import *
 from Scripts.Widgets.Button import Button
+from Scripts.Units.Humans.HumanHero.HumanHero import HumanHero
+from Scripts.Units.Undead.UndeadHero.UndeadHero import UndeadHero
 
 RADIUS = 50
 
@@ -164,7 +166,9 @@ class MapView(object):
 
                 pygame.draw.rect(self.screen, RED, pygame.Rect(center_pos[0] + 21, center_pos[1]+(20-life), 3, 40-(40-life)))
 
-
+        if isinstance(unit, HumanHero) or isinstance(unit, UndeadHero):
+            crown_image = unit.get_crown_image()
+            self.screen.blit(crown_image, (center_pos[0] + 15, center_pos[1]-35))
 
     # PRINT_UNITS
     # Prints every unit on the map
