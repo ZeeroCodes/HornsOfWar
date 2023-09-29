@@ -9,9 +9,7 @@ from Scripts.MapView import MapView
 from Scripts.Widgets.NodeBase import NodeBase
 
 from Scripts.Units.Humans.HumanWarrior.HumanWarrior import HumanWarrior
-from Scripts.Units.Humans.HumanHero.HumanHero import HumanHero
 from Scripts.Units.Undead.UndeadGhost.UndeadGhost import UndeadGhost
-from Scripts.Units.Undead.UndeadHero.UndeadHero import UndeadHero
 
 RADIUS = 50
 
@@ -48,22 +46,25 @@ class Map(object):
         self.turn = 1
         self.finished = False
 
-        nodebase1 = NodeBase((2,0), (50, 322))
+        nodebase1 = NodeBase((1,4), (350, 236))
         ghost = UndeadGhost(nodebase1, 2, False)
         self.map_model.add_unit(ghost, 2)
         nodebase2 = NodeBase((2,3), (275, 365))
-        ghost2 = UndeadHero(nodebase2, 2, False)
+        ghost2 = UndeadGhost(nodebase2, 2, False)
         self.map_model.add_unit(ghost2, 2)
         nodebase1 = NodeBase((4,1), (125, 537))
         ghost = UndeadGhost(nodebase1, 2, False)
         self.map_model.add_unit(ghost, 2)
+        nodebase2 = NodeBase((4,0), (50, 494))
+        ghost2 = UndeadGhost(nodebase2, 2, False)
+        self.map_model.add_unit(ghost2, 2)
 
-        nodebase1 = NodeBase((1,4), (350, 236))
+        nodebase1 = NodeBase((2,0), (50, 322))
         ghost = HumanWarrior(nodebase1)
         self.map_model.add_unit(ghost)
-        nodebase2 = NodeBase((4,0), (50, 494))
-        ghost2 = HumanHero(nodebase2)
-        self.map_model.add_unit(ghost2)
+        #nodebase2 = NodeBase((4,0), (50, 494))
+        #ghost2 = HumanWarrior(nodebase2)
+        #self.map_model.add_unit(ghost2)
         
     
 
@@ -299,7 +300,7 @@ class Map(object):
                             movement_path.append(selected_unit.get_nodebase())
 
                             # Start movement
-                            #self.print_path(movement_path)
+                            self.print_path(movement_path)
                             self.start_movement(movement_path, selected_unit)
                             self.map_model.set_path()
                             self.map_model.set_unit_moved(selected_unit, True)
@@ -334,7 +335,7 @@ class Map(object):
                         self.start_movement(self.map_model.get_path(), selected_unit)
                         self.map_model.set_unit_moved(selected_unit, True)
                         self.map_model.set_path()
-                        self.map_model.set_selected_unit_position(NodeBase(mouse_position, mouse_pixel_position))
+                    self.map_model.set_selected_unit_position(NodeBase(mouse_position, mouse_pixel_position))
                     
                     # Deselects unit
                     self.map_model.set_selected_unit(None) 
@@ -471,27 +472,23 @@ class Map(object):
             else:
                 self.map_view.print_mouse_hexagon(mouse_pixel_position, RED)
 
+    
 
-    def get_tile_values_dictionary(self, unit):
+    def AI_turn(self, unit):
 
-        terrain = 1.0 # Value of the terrain, until different terrains it is 1
         # Get available movements and units that the unit can attack
-        movement_dictionary = dict()
         available_movements = self.map_model.get_movement_positions(unit)
         available_movements.append(unit.get_nodebase())
         attacking_movements = self.map_model.get_attacking_positions(available_movements, unit)
+        self.print_path(available_movements)
+        movement_dictionary = dict()
+        terrain = 1.0
 
-        enemy_unit = self.map_model.get_nearest_enemy_unit(unit)
-        path = self.map_model.get_new_path(unit.get_nodebase(), enemy_unit.get_nodebase())
-        
-        movement_value = 0
-
+        # For every available movement calculate its value
         for tile in available_movements:
 
-            movement_value = int(10*terrain) - self.map_model.movements_between_positions(tile.get_nodebase(), enemy_unit.get_nodebase())
-
+            movement_value = int(10*terrain)
             movement_dictionary[(tile.get_position(), None)] = movement_value
-        movement_dictionary[(path[len(path)-enemy_unit.get_movement()-1].get_position(), None)] = int(10*terrain)
 
         # For every unit it can attack calculate its value
         for tile in attacking_movements:
@@ -523,39 +520,28 @@ class Map(object):
                 
                 # Add this action to dictionary
                 movement_dictionary[(attacking_tile.get_position(), tile.get_position())] = movement_value
-    
-    # AI_TURN
-    # Manages the movement and attack of every enemy unit
-    def AI_turn(self, unit):
-         
-        # Get a dictionary with all available tile and its values
-        movement_dictionary = self.get_tile_values_dictionary(unit)
-          
+        
         # If the dictionary is not empty
         if movement_dictionary:
-            print('GHOST')
-            print(movement_dictionary)
+
             # Get the maximum value
             best_value = max(movement_dictionary.values()) 
             best_key = None
-            print(best_value)
+            
             # Search for the key of the maximum value
             for item in movement_dictionary.items():
-                print(item[1])
+
                 if item[1] == best_value:
-                    print('Setting new best key')
+
                     best_key = item[0]
-            print(best_key)
+
             # If the best movement don't involucrate an attack
             if best_key[1] == None:
-                print('Dont involucrate an attack')
+
                 # Calculate the path and make the movement
-                print(unit.get_position())
-                print(best_key[0])
                 nodebase1 = NodeBase(unit.get_position(), unit.get_pixel_position())
                 nodebase2 = NodeBase(best_key[0], self.map_model.get_coords_by_position(best_key[0]))
                 path = self.map_model.get_new_path(nodebase1, nodebase2)
-                print(path)
                 self.start_movement(path, unit, False)
             
             # If the best movement is an attack
