@@ -545,7 +545,7 @@ class MapModel(object):
                         char_number += char
 
                 number.append(int(char_number))
-                dictionary[(number[0], number[1])] = NodeBase((number[0], number[1]), (number[2], number[3]))
+                dictionary[(number[0], number[1])] = NodeBase((number[0], number[1]), (number[2], number[3]), number[4])
         
         self.map_data = MapData(rows, cols, dictionary)
 

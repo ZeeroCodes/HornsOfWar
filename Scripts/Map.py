@@ -471,27 +471,26 @@ class Map(object):
             else:
                 self.map_view.print_mouse_hexagon(mouse_pixel_position, RED)
 
-    
-    # AI_TURN
-    # Manages the movement and attack of every enemy unit
-    def AI_turn(self, unit):
-        
+
+    def get_tile_values_dictionary(self, unit):
+
+        terrain = 1.0 # Value of the terrain, until different terrains it is 1
         # Get available movements and units that the unit can attack
+        movement_dictionary = dict()
         available_movements = self.map_model.get_movement_positions(unit)
         available_movements.append(unit.get_nodebase())
         attacking_movements = self.map_model.get_attacking_positions(available_movements, unit)
-        movement_dictionary = dict()
-        terrain = 1.0
 
         enemy_unit = self.map_model.get_nearest_enemy_unit(unit)
         path = self.map_model.get_new_path(unit.get_nodebase(), enemy_unit.get_nodebase())
+        
+        movement_value = 0
 
-        # For every available movement calculate its value
         for tile in available_movements:
 
             movement_value = int(10*terrain) - self.map_model.movements_between_positions(tile.get_nodebase(), enemy_unit.get_nodebase())
-            movement_dictionary[(tile.get_position(), None)] = movement_value
 
+            movement_dictionary[(tile.get_position(), None)] = movement_value
         movement_dictionary[(path[len(path)-enemy_unit.get_movement()-1].get_position(), None)] = int(10*terrain)
 
         # For every unit it can attack calculate its value
@@ -524,7 +523,14 @@ class Map(object):
                 
                 # Add this action to dictionary
                 movement_dictionary[(attacking_tile.get_position(), tile.get_position())] = movement_value
-        
+    
+    # AI_TURN
+    # Manages the movement and attack of every enemy unit
+    def AI_turn(self, unit):
+         
+        # Get a dictionary with all available tile and its values
+        movement_dictionary = self.get_tile_values_dictionary(unit)
+          
         # If the dictionary is not empty
         if movement_dictionary:
             print('GHOST')
