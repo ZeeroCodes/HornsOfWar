@@ -1,5 +1,5 @@
 class NodeBase():
-    def __init__(self, position, pixel_position):
+    def __init__(self, position, pixel_position, terrain_id = 1):
         self.F = 0
         self.G = 0
         self.H = 0
@@ -7,7 +7,11 @@ class NodeBase():
         self.terrain_movement_cost = 1
         self.position = position
         self.pixel_position = pixel_position
+        self.terrain_id = terrain_id
     
+    def get_terrain_id(self):
+        return self.terrain_id
+
     def get_terrain_movement_cost(self):
         return self.terrain_movement_cost
 
@@ -31,6 +35,9 @@ class NodeBase():
 
     def getG(self):
         return self.G
+    
+    def set_terrain_id(self, terrain_id):
+        self.terrain_id = terrain_id
 
     def setF(self, F = -1):
         if F == -1:

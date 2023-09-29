@@ -5,6 +5,8 @@ import time
 
 from pygame.locals import *
 from Scripts.Widgets.Button import Button
+from Scripts.Units.Humans.HumanHero.HumanHero import HumanHero
+from Scripts.Units.Undead.UndeadHero.UndeadHero import UndeadHero
 
 RADIUS = 50
 
@@ -33,6 +35,14 @@ class MapView(object):
         # Load grass tile
         self.grass_tile = pygame.image.load(os.path.abspath(os.getcwd()) + "\Images\\HexTileset\\Terrain\\Grass.png").convert_alpha()
         self.grass_tile = pygame.transform.scale(self.grass_tile, (RADIUS*2, RADIUS*2))
+
+        # Load dirt tile
+        self.dirt_tile = pygame.image.load(os.path.abspath(os.getcwd()) + "\Images\\HexTileset\\Terrain\\old_dirt.png").convert_alpha()
+        self.dirt_tile = pygame.transform.scale(self.dirt_tile, (RADIUS*2, RADIUS*2))
+
+        # Load structure tile
+        self.structure_tile = pygame.image.load(os.path.abspath(os.getcwd()) + "\Images\\HexTileset\\Structure\\Fortification.png").convert_alpha()
+        self.structure_tile = pygame.transform.scale(self.structure_tile, (RADIUS*2, RADIUS*2))
 
         self.money_image = pygame.image.load(os.path.abspath(os.getcwd()) + "\Images\\HexTileset\\Money.png").convert_alpha()
         self.money_image = pygame.transform.scale(self.money_image, (75,75))
@@ -108,6 +118,18 @@ class MapView(object):
     def load_grass(self, center):
         self.screen.blit(self.grass_tile, (center[0] - RADIUS, center[1] - RADIUS + 5))
 
+
+    # LOAD_DIRT
+    # Paints the hex dirt tile on the map
+    def load_dirt(self, center):
+        self.screen.blit(self.dirt_tile, (center[0] - RADIUS, center[1] - RADIUS + 5))
+
+
+    # LOAD_structure
+    # Paints the hex structure tile on the map
+    def load_structure(self, center):
+        self.screen.blit(self.structure_tile, (center[0] - RADIUS, center[1] - RADIUS + 5))
+
   
     def print_money(self, money):
         self.screen.blit(self.money_image, (170, 25))
@@ -164,7 +186,9 @@ class MapView(object):
 
                 pygame.draw.rect(self.screen, RED, pygame.Rect(center_pos[0] + 21, center_pos[1]+(20-life), 3, 40-(40-life)))
 
-
+        if isinstance(unit, HumanHero) or isinstance(unit, UndeadHero):
+            crown_image = unit.get_crown_image()
+            self.screen.blit(crown_image, (center_pos[0] + 15, center_pos[1]-35))
 
     # PRINT_UNITS
     # Prints every unit on the map
@@ -255,7 +279,13 @@ class MapView(object):
         self.clear_screen() # Paints background
 
         for value in tiles_dictionary.values():
-            self.load_grass(value.get_pixel_position()) # Loads every tile of grass
+            if value.get_terrain_id() == 1:
+                self.load_grass(value.get_pixel_position()) # Loads every tile of 
+            elif value.get_terrain_id() == 2:
+                self.load_dirt(value.get_pixel_position())
+            elif value.get_terrain_id() == 3:
+                self.load_dirt(value.get_pixel_position())
+                self.load_structure((value.get_pixel_position()))
             self.draw_hexagon(value.get_pixel_position())
             self.print_position(value)
   
