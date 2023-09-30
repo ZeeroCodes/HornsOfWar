@@ -8,6 +8,8 @@ from Scripts.Widgets.Button import Button
 from Scripts.Units.Humans.HumanHero.HumanHero import HumanHero
 from Scripts.Units.Undead.UndeadHero.UndeadHero import UndeadHero
 
+import Constants
+
 RADIUS = 50
 
 BLACK = pygame.Color(0, 0, 0)
@@ -190,6 +192,8 @@ class MapView(object):
             crown_image = unit.get_crown_image()
             self.screen.blit(crown_image, (center_pos[0] + 15, center_pos[1]-35))
 
+
+
     # PRINT_UNITS
     # Prints every unit on the map
     def print_units(self, team_units, tile_dictionary):
@@ -279,13 +283,20 @@ class MapView(object):
         self.clear_screen() # Paints background
 
         for value in tiles_dictionary.values():
-            if value.get_terrain_id() == 1:
+
+            if value.get_terrain_id() == Constants.GRASS_TERRAIN:
+
                 self.load_grass(value.get_pixel_position()) # Loads every tile of 
-            elif value.get_terrain_id() == 2:
+
+            elif value.get_terrain_id() == Constants.DIRT_TERRAIN:
+
                 self.load_dirt(value.get_pixel_position())
-            elif value.get_terrain_id() == 3:
+
+            elif value.get_terrain_id() == Constants.STRUCTURE_TERRAIN:
+
                 self.load_dirt(value.get_pixel_position())
                 self.load_structure((value.get_pixel_position()))
+
             self.draw_hexagon(value.get_pixel_position())
             self.print_position(value)
   
