@@ -13,7 +13,7 @@ class Unit():
         self.movement = movement
         self.node_position = position
         self.alive = True
-        self.moved = False
+        self.moved = True
         self.friendly = friendly
         self.team = team
         self.warrior_image = pygame.image.load(os.path.abspath(os.getcwd()) + image_path)
