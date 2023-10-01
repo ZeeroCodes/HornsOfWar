@@ -7,21 +7,21 @@ from pygame.locals import *
 class Button():
 
     # INIT
-    def __init__(self, position, screen, image_name, image_pressed_name = ""):
+    def __init__(self, position, screen, image_name, image_pressed_name = "", size = (80, 60)):
 
         self.screen = screen
 
         # Loads normal button image
         self.image = pygame.image.load(os.path.abspath(os.getcwd()) + "\Images\\Buttons\\" + image_name).convert_alpha()
-        self.image = pygame.transform.scale(self.image, (80, 60))
+        self.image = pygame.transform.scale(self.image, size)
 
         # If theres button pressed image, loads it
         if image_pressed_name == "":
             self.pressed_image = pygame.image.load(os.path.abspath(os.getcwd()) + "\Images\\Buttons\\" + image_name).convert_alpha()
-            self.pressed_image = pygame.transform.scale(self.pressed_image, (80, 60))
+            self.pressed_image = pygame.transform.scale(self.pressed_image, size)
         else:
             self.pressed_image = pygame.image.load(os.path.abspath(os.getcwd())+"\Images\\Buttons\\" + image_pressed_name).convert_alpha()
-            self.pressed_image = pygame.transform.scale(self.pressed_image, (80, 60))
+            self.pressed_image = pygame.transform.scale(self.pressed_image, size)
 
         self.rect = self.image.get_rect()
         self.rect.topleft = position

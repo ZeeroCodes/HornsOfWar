@@ -7,7 +7,11 @@ from pygame.locals import *
 from Scripts.Widgets.NodeBase import NodeBase
 from Scripts.Units.UnitArray import UnitArray
 from Scripts.Units.Humans.HumanWarrior.HumanWarrior import HumanWarrior
+from Scripts.Units.Humans.HumanHero.HumanHero import HumanHero
+from Scripts.Units.Undead.UndeadHero.UndeadHero import UndeadHero
 from Scripts.MapData import MapData
+
+import Constants
 
 available_movements_even_col = ((-1, 0), (-1, 1), (0, 1), (1, 0), (0, -1), (-1, -1))
 available_movements_odd_col = ((-1, 0), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1))
@@ -22,12 +26,12 @@ class MapModel(object):
         self.selected_unit = None
         self.selected_unit_movements = set()
         self.selected_unit_attack_movements = []
+        self.selected_tile = None
         self.path = []
         self.team_units = [2,UnitArray(),UnitArray()]
         self.team_groups = [[1],[2]]
         self.playing_team = 1
-
-        self.money = 100
+        self.teams_money = [2, 100, 100]
     
 
 
@@ -48,9 +52,12 @@ class MapModel(object):
     #################################################################
 
 
+    def get_playing_team(self):
+        return self.playing_team
 
-    def get_money(self):
-        return self.money
+
+    def get_money(self, team = 1):
+        return self.teams_money[team]
 
 
 
@@ -79,6 +86,13 @@ class MapModel(object):
     # Returns the selected unit
     def get_selected_unit(self):
         return self.selected_unit
+    
+
+
+    # GET_SELECTED_TILE
+    # Returns the selected tile
+    def get_selected_tile(self):
+        return self.selected_tile
 
 
 
@@ -136,11 +150,11 @@ class MapModel(object):
     #################################################################
 
 
-    def spend(self, money):
-        self.money -= money
+    def spend(self, money, team = 1):
+        self.teams_money[team] -= money
 
-    def earn(self, money):
-        self.money += money
+    def earn(self, money, team = 1):
+        self.teams_money[team] += money
 
 
     # SET_MAP_DATA
@@ -154,6 +168,20 @@ class MapModel(object):
     # Sets the new selected unit
     def set_selected_unit(self, unit):
         self.selected_unit = unit
+
+
+
+    # SET_SELECTED_TILE
+    # Sets the new selected unit
+    def set_selected_tile(self, nodebase):
+
+        if isinstance(nodebase, NodeBase):
+
+            self.selected_tile = nodebase
+
+        else:
+
+            self.selected_tile = None
 
 
 
@@ -552,6 +580,14 @@ class MapModel(object):
         return self.map_data
 
 
+    def can_move(self, unit):
+
+        if not self.get_feasible_neighbours(unit.get_nodebase()):
+
+            return False
+        
+        return True
+
 
     # GET_UNIT_MOVEMENT_POSITIONS
     # Gets the available movement hexagons of the selected unit 
@@ -594,9 +630,9 @@ class MapModel(object):
         available_positions.remove(initial_position)
 
         for position in available_positions:
-            final_available_positions.append(NodeBase(position, self.get_coords_by_position(position)))
 
-        
+            final_available_positions.append(self.get_tile_dictionary()[position])
+      
         if unit == self.selected_unit:
 
             self.selected_unit_movements = final_available_positions
@@ -641,9 +677,26 @@ class MapModel(object):
 
 
 
+    # GET_FEASIBLE_spawnpoints
+    # Returns all neighbours of the argument position which are inside the map and not occupied by a unit
+    def get_feasible_spawnpoints(self, nodebase):
+
+        feasible_neighbours = self.get_feasible_neighbours(nodebase)
+        feasible_spawnpoints = list()
+
+        for feasible_neighbour in feasible_neighbours:
+
+            if self.get_tile_dictionary()[feasible_neighbour.get_position()].get_terrain_id() == Constants.SPAWNPOINT:
+
+                feasible_spawnpoints.append(feasible_neighbour)
+
+        return feasible_spawnpoints
+
+
+
     # GET_FEASIBLE_NEIGHBOURS
     # Returns all neighbours of the argument position which are inside the map and not occupied by a unit
-    def get_feasible_neighbours(self, actual_nodebase, final_nodebase):
+    def get_feasible_neighbours(self, actual_nodebase, final_nodebase = None):
 
         available_neighbours = set()
 
@@ -661,13 +714,18 @@ class MapModel(object):
 
             if self.is_inside(next_pos):
 
-                unit = self.get_unit_in_position(next_pos)
+                if not self.occupied(next_pos) and final_nodebase == None:
 
-                if not self.occupied(next_pos) or next_pos == final_nodebase.get_position():
-
-                    neighbour_nodebase = NodeBase(next_pos, self.get_coords_by_position(next_pos))
-                    neighbour_nodebase.set_parent(actual_nodebase)
+                    neighbour_nodebase = NodeBase(next_pos, self.get_coords_by_position(next_pos)) #self.get_tile_dictionary()[next_pos]
                     available_neighbours.add(neighbour_nodebase)
+
+                if final_nodebase != None:
+                    
+                    if  not self.occupied(next_pos) or next_pos == final_nodebase.get_position():
+
+                        neighbour_nodebase = NodeBase(next_pos, self.get_coords_by_position(next_pos))
+                        neighbour_nodebase.set_parent(actual_nodebase)
+                        available_neighbours.add(neighbour_nodebase)
 
         return available_neighbours
 
@@ -712,6 +770,20 @@ class MapModel(object):
     
 
 
+    # ALL_HEROES_IN_TEAM_DEAD
+    # Returns true if theres no Heroe in the team
+    def all_heroes_in_team_dead(self, team):
+
+        for unit in self.get_units_from_team(team).get_unit_array():
+
+            if isinstance(unit, UndeadHero) or isinstance(unit, HumanHero):
+
+                return False
+            
+        return True
+
+
+
     # NEAREST_NEIGHBOUR
     # Returns the nodebase that has the lowest F
     def nearest_neighbour(self, nodebase_dict):
@@ -744,9 +816,18 @@ class MapModel(object):
         open_list[initial_nodebase.get_position()] = initial_nodebase
         actual_nodebase = initial_nodebase
  
-        while(actual_nodebase.get_position() != final_nodebase.get_position()):
+        while actual_nodebase.get_position() != final_nodebase.get_position():
+
             # Get nearest hexagon by its F
-            actual_nodebase = open_list.pop(self.nearest_neighbour(open_list).get_position())
+            nearest_neighbour = self.nearest_neighbour(open_list)
+
+            if nearest_neighbour != None:
+
+                actual_nodebase = open_list.pop(nearest_neighbour.get_position())
+
+            else:
+
+                return {initial_nodebase.get_position() : initial_nodebase, final_nodebase.get_position() : final_nodebase}
 
             if actual_nodebase.get_position() == initial_nodebase.get_position() or not self.occupied(actual_nodebase.get_position()):
                 
@@ -789,7 +870,6 @@ class MapModel(object):
                             else:
 
                                 open_list[neighbour.get_position()] = neighbour
-
         
         actual_nodebase = closed_list[final_nodebase.get_position()]
         final_path = [actual_nodebase]

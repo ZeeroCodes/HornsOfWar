@@ -13,6 +13,8 @@ from Scripts.Units.Humans.HumanHero.HumanHero import HumanHero
 from Scripts.Units.Undead.UndeadGhost.UndeadGhost import UndeadGhost
 from Scripts.Units.Undead.UndeadHero.UndeadHero import UndeadHero
 
+import Constants
+
 RADIUS = 50
 
 BLACK = pygame.Color(0, 0, 0)
@@ -48,24 +50,27 @@ class Map(object):
         self.turn = 1
         self.finished = False
 
-        nodebase1 = NodeBase((2,0), (50, 322))
-        ghost = UndeadGhost(nodebase1, 2, False)
-        self.map_model.add_unit(ghost, 2)
-        nodebase2 = NodeBase((2,3), (275, 365))
+        nodebase2 = NodeBase((0,0), (50, 150))
+        ghost2 = HumanHero(nodebase2)
+        self.map_model.add_unit(ghost2)
+        nodebase1 = NodeBase((1,3), (275, 279))
+        ghost = HumanWarrior(nodebase1)
+        self.map_model.add_unit(ghost)
+        nodebase1 = NodeBase((3,1), (125, 451))
+        ghost = HumanWarrior(nodebase1)
+        self.map_model.add_unit(ghost)
+
+        nodebase2 = NodeBase((6,17), (1325, 709))
         ghost2 = UndeadHero(nodebase2, 2, False)
         self.map_model.add_unit(ghost2, 2)
-        nodebase1 = NodeBase((4,1), (125, 537))
+        nodebase1 = NodeBase((3,15), (1175, 451))
+        ghost = UndeadGhost(nodebase1, 2, False)
+        self.map_model.add_unit(ghost, 2) 
+        nodebase1 = NodeBase((5,14), (1100, 580))
         ghost = UndeadGhost(nodebase1, 2, False)
         self.map_model.add_unit(ghost, 2)
 
-        nodebase1 = NodeBase((1,4), (350, 236))
-        ghost = HumanWarrior(nodebase1)
-        self.map_model.add_unit(ghost)
-        nodebase2 = NodeBase((4,0), (50, 494))
-        ghost2 = HumanHero(nodebase2)
-        self.map_model.add_unit(ghost2)
-        
-    
+
 
     # CREATE_NEW_UNIT
     # Creates new unit in friendly or enemy array
@@ -239,6 +244,8 @@ class Map(object):
                 # If the position is occupied by a unit
                 if self.map_model.occupied(mouse_position):
                     
+                    self.map_model.set_selected_tile(None)
+
                     # If the unit is a friendly one
                     if self.map_model.is_friendly(unit_in_position):
 
@@ -373,7 +380,7 @@ class Map(object):
             selected_unit = self.map_model.get_selected_unit()
 
             # If the mouse is inside the map
-            if mouse_pixel_position != None:
+            if mouse_pixel_position != None and self.map_model.can_move(self.map_model.get_selected_unit()):
 
                 # Create initial nodebase and final nodebases
                 nodebase1 = NodeBase(selected_unit.get_position(), self.map_model.get_coords_by_position(selected_unit.get_position()))
@@ -472,13 +479,15 @@ class Map(object):
                 self.map_view.print_mouse_hexagon(mouse_pixel_position, RED)
 
 
-    def get_tile_values_dictionary(self, unit):
 
+    def get_unit_values_dictionary(self, unit):
+
+        
         terrain = 1.0 # Value of the terrain, until different terrains it is 1
         # Get available movements and units that the unit can attack
         movement_dictionary = dict()
         available_movements = self.map_model.get_movement_positions(unit)
-        available_movements.append(unit.get_nodebase())
+        available_movements.append(self.map_model.get_tile_dictionary()[unit.get_nodebase().get_position()])
         attacking_movements = self.map_model.get_attacking_positions(available_movements, unit)
 
         enemy_unit = self.map_model.get_nearest_enemy_unit(unit)
@@ -488,16 +497,40 @@ class Map(object):
 
         for tile in available_movements:
 
-            movement_value = int(10*terrain) - self.map_model.movements_between_positions(tile.get_nodebase(), enemy_unit.get_nodebase())
+            if isinstance(unit, HumanHero) or isinstance(unit, UndeadHero):
+
+                if tile.get_terrain_id() == Constants.STRUCTURE_TERRAIN:
+
+                    if self.map_model.get_money(unit.get_team()) >= 20:
+
+                        movement_value = int(1000*terrain)
+
+                    else:
+
+                        movement_value = int(10*terrain)
+                else:
+
+                    movement_value = int(10*terrain) - self.map_model.movements_between_positions(tile, enemy_unit.get_nodebase())
+            
+                    if self.map_model.nodebase_exists(tile, path):
+
+                        movement_value += 5
+            
+            else:
+
+                movement_value = int(10*terrain) - self.map_model.movements_between_positions(tile, enemy_unit.get_nodebase())
+            
+                if self.map_model.nodebase_exists(tile, path):
+
+                    movement_value += 5
 
             movement_dictionary[(tile.get_position(), None)] = movement_value
-        movement_dictionary[(path[len(path)-enemy_unit.get_movement()-1].get_position(), None)] = int(10*terrain)
 
         # For every unit it can attack calculate its value
         for tile in attacking_movements:
 
             # Get the tile around the unit it can attack
-            neighbour_tiles = self.map_model.get_movement_positions_from_position(tile.get_position(),1)
+            neighbour_tiles = self.map_model.get_movement_positions_from_position(tile.get_position(), 1)
 
             attacking_tiles = list()
 
@@ -513,73 +546,92 @@ class Map(object):
 
                 # Get the attacked_unit
                 attacked_unit = self.map_model.get_unit_in_position(tile)
-                movement_value = 0
+                movement_value = movement_dictionary[(attacking_tile.get_position(), None)]
 
                 # Calculate its value
                 if attacked_unit.get_health() == attacked_unit.get_max_health():
-                    movement_value = int(10*terrain) + int(unit.get_damage()*terrain - 0)
+
+                    movement_value += int(unit.get_damage()*terrain - 0)
+
                 else:
-                    movement_value = int(10*terrain) + int((unit.get_damage()*terrain)*(attacked_unit.get_max_health() - (attacked_unit.get_health()/attacked_unit.get_max_health())))
+                    
+                    movement_value += int((unit.get_damage()*terrain)*(attacked_unit.get_max_health() - (attacked_unit.get_health()/attacked_unit.get_max_health())))
                 
                 # Add this action to dictionary
                 movement_dictionary[(attacking_tile.get_position(), tile.get_position())] = movement_value
+
+        return movement_dictionary
     
+
+
     # AI_TURN
     # Manages the movement and attack of every enemy unit
     def AI_turn(self, unit):
-         
-        # Get a dictionary with all available tile and its values
-        movement_dictionary = self.get_tile_values_dictionary(unit)
-          
-        # If the dictionary is not empty
-        if movement_dictionary:
-            print('GHOST')
-            print(movement_dictionary)
-            # Get the maximum value
-            best_value = max(movement_dictionary.values()) 
-            best_key = None
-            print(best_value)
-            # Search for the key of the maximum value
-            for item in movement_dictionary.items():
-                print(item[1])
-                if item[1] == best_value:
-                    print('Setting new best key')
-                    best_key = item[0]
-            print(best_key)
-            # If the best movement don't involucrate an attack
-            if best_key[1] == None:
-                print('Dont involucrate an attack')
-                # Calculate the path and make the movement
-                print(unit.get_position())
-                print(best_key[0])
-                nodebase1 = NodeBase(unit.get_position(), unit.get_pixel_position())
-                nodebase2 = NodeBase(best_key[0], self.map_model.get_coords_by_position(best_key[0]))
-                path = self.map_model.get_new_path(nodebase1, nodebase2)
-                print(path)
-                self.start_movement(path, unit, False)
+        
+        if self.map_model.can_move(unit):
+
+            # Get a dictionary with all available tile and its values
+            movement_dictionary = self.get_unit_values_dictionary(unit)
+        
+            # If the dictionary is not empty
+            if movement_dictionary:
+
+                # Get the maximum value
+                best_value = max(movement_dictionary.values()) 
+                best_key = None
+                # Search for the key of the maximum value
+                for item in movement_dictionary.items():
+                    
+                    if item[1] == best_value:
+                        
+                        best_key = item[0]
             
-            # If the best movement is an attack
-            else:
+                # If the best movement don't involucrate an attack
+                if best_key[1] == None:
+
+                    # Calculate the path and make the movement
+                    nodebase1 = NodeBase(unit.get_position(), unit.get_pixel_position())
+                    nodebase2 = NodeBase(best_key[0], self.map_model.get_coords_by_position(best_key[0]))
+                    path = self.map_model.get_new_path(nodebase1, nodebase2)
+                    self.start_movement(path, unit, False)
                 
-                # Calculate path and start movement
-                nodebase1 = NodeBase(unit.get_position(), unit.get_pixel_position())
-                nodebase2 = NodeBase(best_key[0], self.map_model.get_coords_by_position(best_key[0]))
-                nodebase3 = NodeBase(best_key[1], self.map_model.get_coords_by_position(best_key[1]))
-                path1 = self.map_model.get_new_path(nodebase1, nodebase2)
-                path2 = [nodebase3, nodebase2]
-                self.start_movement(path2 + path1[1:], unit, True)
+                # If the best movement is an attack
+                else:
+                    
+                    # Calculate path and start movement
+                    nodebase1 = NodeBase(unit.get_position(), unit.get_pixel_position())
+                    nodebase2 = NodeBase(best_key[0], self.map_model.get_coords_by_position(best_key[0]))
+                    nodebase3 = NodeBase(best_key[1], self.map_model.get_coords_by_position(best_key[1]))
+                    path1 = self.map_model.get_new_path(nodebase1, nodebase2)
+                    path2 = [nodebase3, nodebase2]
+                    self.start_movement(path2 + path1[1:], unit, True)
 
-                # Damage enemy unit
-                attacked_unit = self.map_model.get_unit_in_position(nodebase3)
-                attacked_unit.hurt(unit.get_damage())
+                    # Damage enemy unit
+                    attacked_unit = self.map_model.get_unit_in_position(nodebase3)
+                    attacked_unit.hurt(unit.get_damage())
 
-                # If the enemy health is under0, it is killed and it convert to team 2
-                if attacked_unit.get_health() <= 0:
+                    # If the enemy health is under0, it is killed and it convert to team 2
+                    if (isinstance(unit, UndeadGhost) or isinstance(unit, UndeadHero)) and attacked_unit.get_health() <= 0:
 
-                    self.map_model.delete_unit(attacked_unit)
-                    nodebase = attacked_unit.get_nodebase()
-                    ghost = UndeadGhost(nodebase, 2, False)
-                    self.create_new_unit(ghost)
+                        self.map_model.delete_unit(attacked_unit)
+                        nodebase = attacked_unit.get_nodebase()
+                        ghost = UndeadGhost(nodebase, unit.get_team(), False)
+                        self.create_new_unit(ghost)
+                        self.map_model.earn(Constants.HUMAN_WARRIOR_COST/2, unit.get_team())
+
+        if isinstance(unit, UndeadHero):
+
+            if self.map_model.get_tile_dictionary()[unit.get_nodebase().get_position()].get_terrain_id() == Constants.STRUCTURE_TERRAIN:
+
+                feasible_spawnpoints = self.map_model.get_feasible_spawnpoints(unit.get_nodebase())
+
+                for feasible_spawnpoint in feasible_spawnpoints:
+
+                    if self.map_model.get_money(unit.get_team()) >= Constants.UNDEAD_GHOST_COST:
+
+                        ghost = UndeadGhost(feasible_spawnpoint, unit.get_team(), False)
+                        self.create_new_unit(ghost)
+                        self.map_model.spend(Constants.UNDEAD_GHOST_COST, unit.get_team())
 
 
 
@@ -589,14 +641,51 @@ class Map(object):
 
         teams = self.map_model.get_team_units()
 
-        if teams[1].get_unit_array() == []:
+        if teams[1].get_unit_array() == [] or self.map_model.all_heroes_in_team_dead(1):
             self.map_view.print_winner_team(2)
             self.finished = True
 
-        elif teams[2].get_unit_array() == []:
+        elif teams[2].get_unit_array() == [] or self.map_model.all_heroes_in_team_dead(2):
             self.map_view.print_winner_team(1)
             self.finished = True
         
+
+
+    # MANAGE_SELECTED_TILE
+    # Select a spawnpoint tile for player recruiting units
+    def manage_selected_tile(self):
+
+        mouse_pixel_position = self.map_model.closest_hexagon(pygame.mouse.get_pos())
+        mouse_position = self.map_model.get_position_by_coords(mouse_pixel_position)
+
+        if mouse_position != None:
+
+            if not self.map_model.occupied(mouse_position) and self.map_model.get_tile_dictionary()[mouse_position].get_terrain_id() == Constants.SPAWNPOINT:
+
+                if self.map_model.get_selected_tile() != None:
+
+                    if self.map_model.get_selected_tile().get_position() == mouse_position:
+
+                        self.map_model.set_selected_tile(None)
+
+                else:
+
+                    self.map_model.selected_tile = NodeBase(mouse_position, mouse_pixel_position, Constants.SPAWNPOINT)
+
+            else:
+
+                self.map_model.set_selected_tile(None)
+
+
+
+    # PRINT_SELECTED_TILE
+    # Prints with yellow the selected tile
+    def print_selected_tile(self):
+
+        if self.map_model.get_selected_tile() != None:
+
+            self.map_view.print_selected_tile(self.map_model.get_selected_tile())
+
 
 
     # UPDATE_MAP
@@ -605,19 +694,26 @@ class Map(object):
 
         # Draw map tiles
         self.map_view.draw_map(self.map_model.get_tile_dictionary())
-        #print("Testing")
-        #print(self.moving)
         self.map_view.print_money(self.map_model.get_money())
 
         # Checks new button
         if self.map_view.new_button_pushed():
-            if self.map_model.get_money() >= 20:
-                self.create_new_unit(HumanWarrior(NodeBase((0, 0),(50, 150))))
-                self.map_model.spend(20)
+
+            if self.map_model.get_money() >= 20 and self.map_model.get_selected_tile() != None:
+
+                self.create_new_unit(HumanWarrior(self.map_model.selected_tile))
+                self.map_model.spend(Constants.HUMAN_WARRIOR_COST, self.map_model.get_playing_team())
+
+            self.map_model.set_selected_tile(None)
+            self.map_model.set_selected_unit(None)
 
         # Checks exit button
         if self.map_view.exit_button_pushed():
             return 0
+        
+        if self.map_view.end_turn_button_pushed():
+
+            self.turn = 2
 
         # Print all units
         self.map_view.print_units(self.map_model.get_team_units(), self.map_model.get_tile_dictionary())
@@ -630,6 +726,7 @@ class Map(object):
             
                 # Prints selected unit and its movement tiles
                 self.print_selected_unit()
+                self.print_selected_tile()
 
                 # Draw an hexagon where the mouse pointer is
                 self.print_mouse_hexagon()
@@ -641,9 +738,10 @@ class Map(object):
                 if self.map_view.left_mouse_button_pushed() and self.clicked == False:
 
                     self.clicked = True
-                    # Manages and prints selected unit
+                    # Manages and prints selected unit and tile
+                    self.manage_selected_tile()
                     self.manage_selected_unit()
-
+                    
                 if self.map_model.all_units_in_team_moved(self.turn):
                     print("Turno del equipo 2")
                     self.turn = 2
@@ -653,6 +751,7 @@ class Map(object):
                     self.clicked = True
                     self.map_model.set_selected_unit(None)
                     self.map_model.set_selected_unit_movements()
+                    self.map_model.set_selected_tile(None)
 
             else:
 
@@ -662,13 +761,15 @@ class Map(object):
 
                         if team != 1:
 
-                            for unit in self.map_model.get_team_units()[team].get_unit_array():
-                                print("Turno de: ")
-                                unit.toString()
-                                self.AI_turn(unit)
-                                self.check_win_conditions()
-                                if self.finished:
-                                    break;
+                            for unit in reversed(self.map_model.get_team_units()[team].get_unit_array()):
+
+                                if not unit.get_moved():
+                                    print(f"Turno de: ")
+                                    unit.toString()
+                                    self.AI_turn(unit)
+                                    self.check_win_conditions()
+                                    if self.finished:
+                                        break;
 
                         if self.finished:
                             break;

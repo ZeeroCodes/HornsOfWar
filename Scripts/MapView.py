@@ -8,17 +8,7 @@ from Scripts.Widgets.Button import Button
 from Scripts.Units.Humans.HumanHero.HumanHero import HumanHero
 from Scripts.Units.Undead.UndeadHero.UndeadHero import UndeadHero
 
-RADIUS = 50
-
-BLACK = pygame.Color(0, 0, 0)
-WHITE = pygame.Color(255, 255, 255)
-RED = pygame.Color(255, 0, 0)
-BLUE = pygame.Color(0, 0, 255)
-GREEN = pygame.Color(0, 255, 0)
-YELLOW = pygame.Color(255, 255, 0)
-GREY = pygame.Color(80, 80, 80)
-GOLD = pygame.Color(204, 204, 0)
-
+import Constants
 
 class MapView(object):
     def __init__(self):
@@ -34,15 +24,15 @@ class MapView(object):
 
         # Load grass tile
         self.grass_tile = pygame.image.load(os.path.abspath(os.getcwd()) + "\Images\\HexTileset\\Terrain\\Grass.png").convert_alpha()
-        self.grass_tile = pygame.transform.scale(self.grass_tile, (RADIUS*2, RADIUS*2))
+        self.grass_tile = pygame.transform.scale(self.grass_tile, (Constants.RADIUS*2, Constants.RADIUS*2))
 
         # Load dirt tile
         self.dirt_tile = pygame.image.load(os.path.abspath(os.getcwd()) + "\Images\\HexTileset\\Terrain\\old_dirt.png").convert_alpha()
-        self.dirt_tile = pygame.transform.scale(self.dirt_tile, (RADIUS*2, RADIUS*2))
+        self.dirt_tile = pygame.transform.scale(self.dirt_tile, (Constants.RADIUS*2, Constants.RADIUS*2))
 
         # Load structure tile
         self.structure_tile = pygame.image.load(os.path.abspath(os.getcwd()) + "\Images\\HexTileset\\Structure\\Fortification.png").convert_alpha()
-        self.structure_tile = pygame.transform.scale(self.structure_tile, (RADIUS*2, RADIUS*2))
+        self.structure_tile = pygame.transform.scale(self.structure_tile, (Constants.RADIUS*2, Constants.RADIUS*2))
 
         self.money_image = pygame.image.load(os.path.abspath(os.getcwd()) + "\Images\\HexTileset\\Money.png").convert_alpha()
         self.money_image = pygame.transform.scale(self.money_image, (75,75))
@@ -53,6 +43,9 @@ class MapView(object):
         # Creation of the new unit button
         self.new_button = Button((100,10),self.screen, "new_button.png", "new_button_pressed.png")
 
+        # Creation of end turn button
+        self.end_turn_button = Button((250,20),self.screen, "end_turn_button.png", "end_turn_button_pressed.png", (100, 40))
+
         self.font = pygame.font.SysFont(None, 16)
         self.winning_font = pygame.font.SysFont(None, 96)
 
@@ -60,7 +53,7 @@ class MapView(object):
 
     def print_position(self, tile):
        
-        img = self.font.render(str(tile.get_position()), False, BLACK)
+        img = self.font.render(str(tile.get_position()), False, Constants.BLACK)
         pixel_position = tile.get_pixel_position()
         pixel_position = (pixel_position[0], pixel_position[1] - 35)
         self.screen.blit(img, pixel_position)
@@ -68,7 +61,7 @@ class MapView(object):
 
     def print_winner_team(self, team):
 
-        img = self.font.render("Wins team " + str(team), False, BLACK)
+        img = self.font.render("Wins team " + str(team), False, Constants.BLACK)
         pixel_position = (300, 25)
         self.screen.blit(img, pixel_position)
 
@@ -86,7 +79,7 @@ class MapView(object):
 
     # DRAW_HEXAGON
     # Draws one hexagon having the center and the radius
-    def draw_hexagon(self, center, colour = BLACK, radius = RADIUS, thick = 5):
+    def draw_hexagon(self, center, colour = Constants.BLACK, radius = Constants.RADIUS, thick = 5):
         points = [(center[0] + radius, center[1]),
                  (center[0] + int(radius*math.cos(math.pi/3)), center[1] + int(radius*math.sin(math.pi/3))),
                  (center[0] - int(radius*math.cos(math.pi/3)), center[1] + int(radius*math.sin(math.pi/3))),
@@ -99,8 +92,8 @@ class MapView(object):
 
     # PAINT_HEXAGON
     # Draws one hexagon at the desired center and fills it with the color passed by argument
-    def paint_hexagon(self, center, colour = WHITE, radius = RADIUS):
-        centero = (RADIUS, RADIUS)
+    def paint_hexagon(self, center, colour = Constants.WHITE, radius = Constants.RADIUS):
+        centero = (Constants.RADIUS, Constants.RADIUS)
         points = [(centero[0] + radius, centero[1]),
                  (centero[0] + int(radius*math.cos(math.pi/3)), centero[1] + int(radius*math.sin(math.pi/3))),
                  (centero[0] - int(radius*math.cos(math.pi/3)), centero[1] + int(radius*math.sin(math.pi/3))),
@@ -109,32 +102,32 @@ class MapView(object):
                  (centero[0] + int(radius*math.cos(math.pi/3)), centero[1] - int(radius*math.sin(math.pi/3)))]
         hex_surface = pygame.Surface((2*radius, 2*radius), pygame.SRCALPHA)
         pygame.draw.polygon(hex_surface, colour, points)
-        self.screen.blit(hex_surface, (center[0]-RADIUS, center[1]-RADIUS))
+        self.screen.blit(hex_surface, (center[0] - Constants.RADIUS, center[1] - Constants.RADIUS))
 
 
 
     # LOAD_GRASS
     # Paints the hex grass tile on the map
     def load_grass(self, center):
-        self.screen.blit(self.grass_tile, (center[0] - RADIUS, center[1] - RADIUS + 5))
+        self.screen.blit(self.grass_tile, (center[0] - Constants.RADIUS, center[1] - Constants.RADIUS + 5))
 
 
     # LOAD_DIRT
     # Paints the hex dirt tile on the map
     def load_dirt(self, center):
-        self.screen.blit(self.dirt_tile, (center[0] - RADIUS, center[1] - RADIUS + 5))
+        self.screen.blit(self.dirt_tile, (center[0] - Constants.RADIUS, center[1] - Constants.RADIUS + 5))
 
 
     # LOAD_structure
     # Paints the hex structure tile on the map
     def load_structure(self, center):
-        self.screen.blit(self.structure_tile, (center[0] - RADIUS, center[1] - RADIUS + 5))
+        self.screen.blit(self.structure_tile, (center[0] - Constants.RADIUS, center[1] - Constants.RADIUS + 5))
 
   
     def print_money(self, money):
         self.screen.blit(self.money_image, (170, 25))
 
-        img = self.font.render(str(money), False, BLACK)
+        img = self.font.render(str(money), False, Constants.BLACK)
         pixel_position = (205, 38)
         self.screen.blit(img, pixel_position)
 
@@ -153,13 +146,13 @@ class MapView(object):
             self.paint_hexagon(unit.get_pixel_position(), pygame.Color(255, 0, 0, 80))
 
         self.screen.blit(image, (center_pos[0]-image.get_width()/2, center_pos[1]-image.get_height()/2)) # Draws button
-        pygame.draw.rect(self.screen, GREY, pygame.Rect(center_pos[0] + 20, center_pos[1]-21, 5, 42))
+        pygame.draw.rect(self.screen, Constants.GREY, pygame.Rect(center_pos[0] + 20, center_pos[1]-21, 5, 42))
         
 
         # If life is full pint green bar
         if life == 40:
 
-            pygame.draw.rect(self.screen, GREEN, pygame.Rect(center_pos[0] + 21, center_pos[1]-20, 3, 40))
+            pygame.draw.rect(self.screen, Constants.GREEN, pygame.Rect(center_pos[0] + 21, center_pos[1]-20, 3, 40))
 
         # If life is more than half bar
         elif life >= 20:
@@ -167,28 +160,30 @@ class MapView(object):
             # When life is above 25 of 40, print the bar with GREEN
             if life > 25:
 
-                pygame.draw.rect(self.screen, GREEN, pygame.Rect(center_pos[0] + 21, center_pos[1]-(20-(40-life)), 3, 40-(40-life)))
+                pygame.draw.rect(self.screen, Constants.GREEN, pygame.Rect(center_pos[0] + 21, center_pos[1]-(20-(40-life)), 3, 40-(40-life)))
             
             # When life reaches 25 of 40, print the bar with yellow
             else:
 
-                pygame.draw.rect(self.screen, YELLOW, pygame.Rect(center_pos[0] + 21, center_pos[1]-(20-(40-life)), 3, 40-(40-life)))
+                pygame.draw.rect(self.screen, Constants.YELLOW, pygame.Rect(center_pos[0] + 21, center_pos[1]-(20-(40-life)), 3, 40-(40-life)))
 
         else:
 
             # When life is above 10 over 40 print with yellow
             if life > 10:
 
-                pygame.draw.rect(self.screen, YELLOW, pygame.Rect(center_pos[0] + 21, center_pos[1]+(20-life), 3, 40-(40-life)))
+                pygame.draw.rect(self.screen, Constants.YELLOW, pygame.Rect(center_pos[0] + 21, center_pos[1]+(20-life), 3, 40-(40-life)))
             
             # If life is over 10 of 40, print it in red
             else:
 
-                pygame.draw.rect(self.screen, RED, pygame.Rect(center_pos[0] + 21, center_pos[1]+(20-life), 3, 40-(40-life)))
+                pygame.draw.rect(self.screen, Constants.RED, pygame.Rect(center_pos[0] + 21, center_pos[1]+(20-life), 3, 40-(40-life)))
 
         if isinstance(unit, HumanHero) or isinstance(unit, UndeadHero):
             crown_image = unit.get_crown_image()
             self.screen.blit(crown_image, (center_pos[0] + 15, center_pos[1]-35))
+
+
 
     # PRINT_UNITS
     # Prints every unit on the map
@@ -235,12 +230,24 @@ class MapView(object):
         if self.exit_button.is_pushed():
             return True
         return False
+    
+
+
+    # END_TURN_BUTTON_PUSHED
+    # Returns true if end turn button pushed
+    def end_turn_button_pushed(self):
+
+        if self.end_turn_button.is_pushed():
+
+            return True
+        
+        return False
 
 
 
     # PRINT_MOUSE_HEXAGON
     # Draws the hexagon where the mouse pointer is at
-    def print_mouse_hexagon(self, mouse_position, color = GOLD):
+    def print_mouse_hexagon(self, mouse_position, color = Constants.GOLD):
         if mouse_position != None:
             self.draw_hexagon(mouse_position, color)
 
@@ -252,12 +259,23 @@ class MapView(object):
         for tile in unit_movements:
             self.paint_hexagon(tile.get_pixel_position(), pygame.Color(0, 255, 0, 80))
             self.draw_hexagon(tile.get_pixel_position())
+
+
+
+    # PRINT_UNIT_MOVEMENTS
+    # Paint an hexagon for every movement position
+    def print_selected_tile(self, nodebase):
+            
+        if nodebase != None:
+
+            self.paint_hexagon(nodebase.get_pixel_position(), pygame.Color(255, 255, 0, 80))
+            self.draw_hexagon(nodebase.get_pixel_position())
         
 
     
     # PRINT_PATH
     # Draws lines between path positions
-    def print_path(self, path, colour = GOLD):
+    def print_path(self, path, colour = Constants.GOLD):
         nodebase1 = path[0]
         for tile in path[1:]: 
             pygame.draw.line(self.screen, colour, nodebase1.get_pixel_position(), tile.get_pixel_position(), 4)
@@ -268,7 +286,7 @@ class MapView(object):
     # CLEAR_SCREEN
     # Paints all screen with white
     def clear_screen(self):
-        self.screen.fill(WHITE)
+        self.screen.fill(Constants.WHITE)
 
 
 
@@ -279,13 +297,20 @@ class MapView(object):
         self.clear_screen() # Paints background
 
         for value in tiles_dictionary.values():
-            if value.get_terrain_id() == 1:
+
+            if value.get_terrain_id() == Constants.GRASS_TERRAIN:
+
                 self.load_grass(value.get_pixel_position()) # Loads every tile of 
-            elif value.get_terrain_id() == 2:
+
+            elif value.get_terrain_id() == Constants.DIRT_TERRAIN:
+
                 self.load_dirt(value.get_pixel_position())
-            elif value.get_terrain_id() == 3:
+
+            elif value.get_terrain_id() == Constants.STRUCTURE_TERRAIN:
+
                 self.load_dirt(value.get_pixel_position())
                 self.load_structure((value.get_pixel_position()))
+
             self.draw_hexagon(value.get_pixel_position())
             self.print_position(value)
   
