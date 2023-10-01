@@ -1,12 +1,28 @@
 *************************************************************************
 
+V : 00.01.00
+
+Who : Raul Calatayud Ferre
+
+Date : 1 / 10 / 2023
+
+Commit number: -
+
+Task number : -
+
+Description : 
+
+    - New medium version
+
+*************************************************************************
+
 V : 00.00.05
 
 Who : Raul Calatayud Ferre
 
 Date : 1 / 10 / 2023
 
-Commit number: a23084f8e927a5d98d79d5c5252b7f5eaa3c57c1
+Commit number: b0432fa48a0a59e552a677216a9ddcd8cd010b6d
 
 Task number : 4466
 
