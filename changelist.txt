@@ -1,5 +1,107 @@
 *************************************************************************
+
+V : 00.00.05
+
+Who : Raul Calatayud Ferre
+
+Date : 1 / 10 / 2023
+
+Commit number: a23084f8e927a5d98d79d5c5252b7f5eaa3c57c1
+
+Task number : 4466
+
+Description : 
+
+    - Added new button for ending turn of the player
+    - Little modification on normal units IA
+    - Added IA units recruiting with heroes
+
+*************************************************************************
+
+V : 00.00.04
+
+Who : Raul Calatayud Ferre
+
+Date : 30 / 09 / 2023
+
+Commit number: a23084f8e927a5d98d79d5c5252b7f5eaa3c57c1
+
+Task number : 4459 - 4465
+
+Description : 
+
+    - Added new IA for Heroes controlled by IA
+    - Little modification on normal units IA
+    - Added IA units recruiting with heroes
+
+*************************************************************************
+
+V : 00.00.03
+
+Who : Raul Calatayud Ferre
+
+Date : 28 / 09 / 2023
+
+Commit number: xxx
+
+Task number : 4455
+
+Description : 
+
+    - Added new tile : Structure, future position where Heroes can rcruit
+    - Added dirt tile as a provisional recruiting tile
+    - Modified test_map for recruiting positions
+
+*************************************************************************
+
+V : 00.00.02
+
+Who : Raul Calatayud Ferre
+
+Date : 26 / 09 / 2023
+
+Commit number: xxx
+
+Task number : 4454
+
+Description : 
+
+    - Added new Heroes : UndeadHero and HumanHero
+
+*************************************************************************
+
+V : 00.00.01
+
+Who : Raul Calatayud Ferre
+
+Date : 25 / 09 / 2023
+
+Commit number: xxx
+
+Task number : 4449
+
+Description : 
+
+    - Fixed bug where the IA unit didn't move when no enemy units in range
+
+*************************************************************************
+
+V : 00.00.00
+
+Who : Raul Calatayud Ferre
+
+Date : xx / xx / 2022
+
+Commit number: xxx
+
+Task number : xxxx
+
+Description : First developing of game, map creation, unit movement and combat
+
+*************************************************************************
 Template:
+
+V : 00.00.00 (game_version.big_feature.feature)
 
 Who : Raul Calatayud Ferre
 
@@ -8,8 +110,6 @@ Date : D / M / Y
 Commit number: xxx
 
 Task number : xxxx
-
-V : 00.00.00 (game_version.big_feature.feature)
 
 Description : 
 

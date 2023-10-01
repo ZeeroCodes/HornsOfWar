@@ -7,6 +7,8 @@ from pygame.locals import *
 from Scripts.Widgets.NodeBase import NodeBase
 from Scripts.Units.UnitArray import UnitArray
 from Scripts.Units.Humans.HumanWarrior.HumanWarrior import HumanWarrior
+from Scripts.Units.Humans.HumanHero.HumanHero import HumanHero
+from Scripts.Units.Undead.UndeadHero.UndeadHero import UndeadHero
 from Scripts.MapData import MapData
 
 import Constants
@@ -24,6 +26,7 @@ class MapModel(object):
         self.selected_unit = None
         self.selected_unit_movements = set()
         self.selected_unit_attack_movements = []
+        self.selected_tile = None
         self.path = []
         self.team_units = [2,UnitArray(),UnitArray()]
         self.team_groups = [[1],[2]]
@@ -48,6 +51,9 @@ class MapModel(object):
     ################ GETTERS ########################################
     #################################################################
 
+
+    def get_playing_team(self):
+        return self.playing_team
 
 
     def get_money(self, team = 1):
@@ -80,6 +86,13 @@ class MapModel(object):
     # Returns the selected unit
     def get_selected_unit(self):
         return self.selected_unit
+    
+
+
+    # GET_SELECTED_TILE
+    # Returns the selected tile
+    def get_selected_tile(self):
+        return self.selected_tile
 
 
 
@@ -155,6 +168,20 @@ class MapModel(object):
     # Sets the new selected unit
     def set_selected_unit(self, unit):
         self.selected_unit = unit
+
+
+
+    # SET_SELECTED_TILE
+    # Sets the new selected unit
+    def set_selected_tile(self, nodebase):
+
+        if isinstance(nodebase, NodeBase):
+
+            self.selected_tile = nodebase
+
+        else:
+
+            self.selected_tile = None
 
 
 
@@ -743,6 +770,20 @@ class MapModel(object):
     
 
 
+    # ALL_HEROES_IN_TEAM_DEAD
+    # Returns true if theres no Heroe in the team
+    def all_heroes_in_team_dead(self, team):
+
+        for unit in self.get_units_from_team(team).get_unit_array():
+
+            if isinstance(unit, UndeadHero) or isinstance(unit, HumanHero):
+
+                return False
+            
+        return True
+
+
+
     # NEAREST_NEIGHBOUR
     # Returns the nodebase that has the lowest F
     def nearest_neighbour(self, nodebase_dict):
@@ -776,8 +817,17 @@ class MapModel(object):
         actual_nodebase = initial_nodebase
  
         while actual_nodebase.get_position() != final_nodebase.get_position():
+
             # Get nearest hexagon by its F
-            actual_nodebase = open_list.pop(self.nearest_neighbour(open_list).get_position())
+            nearest_neighbour = self.nearest_neighbour(open_list)
+
+            if nearest_neighbour != None:
+
+                actual_nodebase = open_list.pop(nearest_neighbour.get_position())
+
+            else:
+
+                return {initial_nodebase.get_position() : initial_nodebase, final_nodebase.get_position() : final_nodebase}
 
             if actual_nodebase.get_position() == initial_nodebase.get_position() or not self.occupied(actual_nodebase.get_position()):
                 
