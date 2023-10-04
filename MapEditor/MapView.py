@@ -23,8 +23,8 @@ class MapView(object):
 
         pygame.init()
 
-        #self.resolution = (1366, 768)
-        self.resolution = (800,600)
+        self.resolution = (1366, 768)
+        #self.resolution = (800,600)
 
         self.screen_resolution = self.resolution
 
