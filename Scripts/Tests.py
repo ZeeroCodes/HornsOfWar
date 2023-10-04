@@ -1,3 +1,2 @@
-list1 = (1,2,3,4,5)
-
-print(len(list1))
+from distutils.core import setup
+help(setup)

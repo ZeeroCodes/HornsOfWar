@@ -8,6 +8,8 @@ from MapEditor.MapModel import MapModel
 from MapEditor.MapView import MapView
 from MapEditor.Units.UndeadGhost import UndeadGhost
 
+import Constants
+
 RADIUS = 50
 
 BLACK = pygame.Color(0, 0, 0)
@@ -119,56 +121,56 @@ class Map(object):
 
             self.selected_race = None
             self.selected_unit = None
-            self.selected_terrain = 0
+            self.selected_terrain = Constants.GRASS_TERRAIN
 
         # Checks forest button
         elif self.map_view.forest_button_pushed():
 
             self.selected_race = None
             self.selected_unit = None
-            self.selected_terrain = 1
+            self.selected_terrain = Constants.FOREST_TERRAIN
 
         # Checks hills button
         elif self.map_view.hills_button_pushed():
 
             self.selected_race = None
             self.selected_unit = None
-            self.selected_terrain = 2
+            self.selected_terrain = Constants.HILLS_TERRAIN
 
         # Checks water button
         elif self.map_view.water_button_pushed():
 
             self.selected_race = None
             self.selected_unit = None
-            self.selected_terrain = 3
+            self.selected_terrain = Constants.WATER_TERRAIN
 
         # Checks mountains button
         elif self.map_view.mountains_button_pushed():
 
             self.selected_race = None
             self.selected_unit = None
-            self.selected_terrain = 4
+            self.selected_terrain = Constants.MOUNTAIN_TERRAIN
 
         # Checks sand button
         elif self.map_view.sand_button_pushed():
 
             self.selected_race = None
             self.selected_unit = None
-            self.selected_terrain = 5
+            self.selected_terrain = Constants.SAND_TERRAIN
 
         # Checks snow button
         elif self.map_view.dirt_button_pushed():
 
             self.selected_race = None
             self.selected_unit = None
-            self.selected_terrain = 6
+            self.selected_terrain = Constants.DIRT_TERRAIN
 
         # Checks swamp button
         elif self.map_view.swamp_button_pushed():
 
             self.selected_race = None
             self.selected_unit = None
-            self.selected_terrain = 7
+            self.selected_terrain = Constants.SWAMP_TERRAIN
 
     
 
@@ -180,35 +182,35 @@ class Map(object):
 
             selected_terrain_position = None
 
-            if self.selected_terrain == 0:
+            if self.selected_terrain == Constants.GRASS_TERRAIN:
 
                 selected_terrain_position = (423, 23)
                 
-            elif self.selected_terrain == 1:
+            elif self.selected_terrain == Constants.FOREST_TERRAIN:
 
                 selected_terrain_position = (458, 23)
 
-            elif self.selected_terrain == 2:
+            elif self.selected_terrain == Constants.HILLS_TERRAIN:
 
                 selected_terrain_position = (458, 58)
                 
-            elif self.selected_terrain == 3:
+            elif self.selected_terrain == Constants.WATER_TERRAIN:
 
                 selected_terrain_position = (493, 58)
                 
-            elif self.selected_terrain == 4:
+            elif self.selected_terrain == Constants.MOUNTAIN_TERRAIN:
 
                 selected_terrain_position = (388, 23)
                 
-            elif self.selected_terrain == 5:
+            elif self.selected_terrain == Constants.SAND_TERRAIN:
 
                 selected_terrain_position = (493, 23)
                 
-            elif self.selected_terrain == 6:
+            elif self.selected_terrain == Constants.DIRT_TERRAIN:
 
                 selected_terrain_position = (388, 58)
                 
-            elif self.selected_terrain == 7:
+            elif self.selected_terrain == Constants.SWAMP_TERRAIN:
 
                 selected_terrain_position = (423, 58)
 
@@ -249,7 +251,7 @@ class Map(object):
  
 
     # PRINT_UNIT_SELECTION
-    # Draws the bounding rect of the selected race adn the bounding hexagon for the selected unit
+    # Draws the bounding rect of the selected race and the bounding hexagon for the selected unit
     def print_unit_selection(self):
 
         if self.selected_race != None:
@@ -397,7 +399,7 @@ class Map(object):
         if pygame.mouse.get_pressed()[0] == 1:
             
             # If there is a terrain selected
-            if self.selected_terrain and self.is_inside(terrain_pixel_position):
+            if self.selected_terrain != None and self.is_inside(terrain_pixel_position):
                 
                 terrain_position = self.get_mouse_position()
 

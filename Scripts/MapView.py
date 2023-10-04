@@ -30,6 +30,19 @@ class MapView(object):
         self.dirt_tile = pygame.image.load(os.path.abspath(os.getcwd()) + "\Images\\HexTileset\\Terrain\\old_dirt.png").convert_alpha()
         self.dirt_tile = pygame.transform.scale(self.dirt_tile, (Constants.RADIUS*2, Constants.RADIUS*2))
 
+        self.mountain_tile = pygame.image.load(os.path.abspath(os.getcwd()) + "\Images\\HexTileset\\Terrain\\Mountains.png").convert_alpha()
+        self.mountain_tile = pygame.transform.scale(self.mountain_tile, (Constants.RADIUS*2, Constants.RADIUS*2))
+        self.forest_tile = pygame.image.load(os.path.abspath(os.getcwd()) + "\Images\\HexTileset\\Terrain\\Forest.png").convert_alpha()
+        self.forest_tile = pygame.transform.scale(self.forest_tile, (Constants.RADIUS*2, Constants.RADIUS*2))
+        self.sand_tile = pygame.image.load(os.path.abspath(os.getcwd()) + "\Images\\HexTileset\\Terrain\\Sand.png").convert_alpha()
+        self.sand_tile = pygame.transform.scale(self.sand_tile, (Constants.RADIUS*2, Constants.RADIUS*2))
+        self.swamp_tile = pygame.image.load(os.path.abspath(os.getcwd()) + "\Images\\HexTileset\\Terrain\\Swamp.png").convert_alpha()
+        self.swamp_tile = pygame.transform.scale(self.swamp_tile, (Constants.RADIUS*2, Constants.RADIUS*2))
+        self.hills_tile = pygame.image.load(os.path.abspath(os.getcwd()) + "\Images\\HexTileset\\Terrain\\Hills.png").convert_alpha()
+        self.hills_tile = pygame.transform.scale(self.hills_tile, (Constants.RADIUS*2, Constants.RADIUS*2))
+        self.water_tile = pygame.image.load(os.path.abspath(os.getcwd()) + "\Images\\HexTileset\\Terrain\\Water.png").convert_alpha()
+        self.water_tile = pygame.transform.scale(self.water_tile, (Constants.RADIUS*2, Constants.RADIUS*2))
+
         # Load structure tile
         self.structure_tile = pygame.image.load(os.path.abspath(os.getcwd()) + "\Images\\HexTileset\\Structure\\Fortification.png").convert_alpha()
         self.structure_tile = pygame.transform.scale(self.structure_tile, (Constants.RADIUS*2, Constants.RADIUS*2))
@@ -104,26 +117,9 @@ class MapView(object):
         pygame.draw.polygon(hex_surface, colour, points)
         self.screen.blit(hex_surface, (center[0] - Constants.RADIUS, center[1] - Constants.RADIUS))
 
-
-
-    # LOAD_GRASS
-    # Paints the hex grass tile on the map
-    def load_grass(self, center):
-        self.screen.blit(self.grass_tile, (center[0] - Constants.RADIUS, center[1] - Constants.RADIUS + 5))
-
-
-    # LOAD_DIRT
-    # Paints the hex dirt tile on the map
-    def load_dirt(self, center):
-        self.screen.blit(self.dirt_tile, (center[0] - Constants.RADIUS, center[1] - Constants.RADIUS + 5))
-
-
-    # LOAD_structure
-    # Paints the hex structure tile on the map
-    def load_structure(self, center):
-        self.screen.blit(self.structure_tile, (center[0] - Constants.RADIUS, center[1] - Constants.RADIUS + 5))
-
   
+    # PRINT_MONEY
+    # Draws the available money the player has
     def print_money(self, money):
         self.screen.blit(self.money_image, (170, 25))
 
@@ -290,6 +286,53 @@ class MapView(object):
 
 
 
+    # LOAD_TERRAIN
+    # Paints the terrain on the tile on the map
+    def load_terrain(self, nodebase):
+        terrain = nodebase.get_terrain_id()
+        center = nodebase.get_pixel_position()
+
+        if terrain != None:
+
+            if terrain == Constants.GRASS_TERRAIN:
+
+                self.screen.blit(self.grass_tile, (center[0] - Constants.RADIUS, center[1] - Constants.RADIUS + 5))
+                
+            elif terrain == Constants.FOREST_TERRAIN:
+
+                self.screen.blit(self.forest_tile, (center[0] - Constants.RADIUS, center[1] - Constants.RADIUS + 5))
+
+            elif terrain == Constants.HILLS_TERRAIN:
+
+                self.screen.blit(self.hills_tile, (center[0] - Constants.RADIUS, center[1] - Constants.RADIUS + 5))
+                
+            elif terrain == Constants.WATER_TERRAIN:
+
+                self.screen.blit(self.water_tile, (center[0] - Constants.RADIUS, center[1] - Constants.RADIUS + 5))
+                
+            elif terrain == Constants.MOUNTAIN_TERRAIN:
+
+                self.screen.blit(self.mountain_tile, (center[0] - Constants.RADIUS, center[1] - Constants.RADIUS + 5))
+                
+            elif terrain == Constants.SAND_TERRAIN:
+
+                self.screen.blit(self.sand_tile, (center[0] - Constants.RADIUS, center[1] - Constants.RADIUS + 5))
+                
+            elif terrain == Constants.DIRT_TERRAIN:
+
+                self.screen.blit(self.dirt_tile, (center[0] - Constants.RADIUS, center[1] - Constants.RADIUS + 5))
+                
+            elif terrain == Constants.SWAMP_TERRAIN:
+
+                self.screen.blit(self.swamp_tile, (center[0] - Constants.RADIUS, center[1] - Constants.RADIUS + 5))
+
+            elif terrain == Constants.STRUCTURE_TERRAIN:
+
+                self.screen.blit(self.dirt_tile, (center[0] - Constants.RADIUS, center[1] - Constants.RADIUS + 5))
+                self.screen.blit(self.structure_tile, (center[0] - Constants.RADIUS, center[1] - Constants.RADIUS + 5))
+
+
+
     # DRAW_MAP
     # Draws the GUI part of the map
     def draw_map(self, tiles_dictionary):
@@ -298,19 +341,7 @@ class MapView(object):
 
         for value in tiles_dictionary.values():
 
-            if value.get_terrain_id() == Constants.GRASS_TERRAIN:
-
-                self.load_grass(value.get_pixel_position()) # Loads every tile of 
-
-            elif value.get_terrain_id() == Constants.DIRT_TERRAIN:
-
-                self.load_dirt(value.get_pixel_position())
-
-            elif value.get_terrain_id() == Constants.STRUCTURE_TERRAIN:
-
-                self.load_dirt(value.get_pixel_position())
-                self.load_structure((value.get_pixel_position()))
-
+            self.load_terrain(value) # loads every tile of grass
             self.draw_hexagon(value.get_pixel_position())
             self.print_position(value)
   
