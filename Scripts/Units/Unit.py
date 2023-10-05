@@ -5,7 +5,7 @@ import os
 
 class Unit():
 
-    def __init__(self, image_path, position = NodeBase((0,0), (50,150)), team = 1, friendly = True, max_health = 100, damage = 10, movement = 2):
+    def __init__(self, image_path, position = NodeBase((0,0), (50,150)), team = 1, friendly = True, max_health = 100, damage = 10, movement = 2, terrain_bonuses = dict()):
         
         self.max_health = max_health
         self.health = max_health
@@ -18,11 +18,25 @@ class Unit():
         self.team = team
         self.warrior_image = pygame.image.load(os.path.abspath(os.getcwd()) + image_path)
         self.warrior_image = pygame.transform.scale(self.warrior_image, (60, 70))
+        self.terrain_bonuses = terrain_bonuses
     
-    def set_moved(self, moved):
+    def set_terrain_bonuses(self, terrain_bonuses:dict):
+        self.terrain_bonuses = terrain_bonuses
+
+    def get_terrain_bonus(self, terrain)->float:
+
+        if terrain in self.terrain_bonuses.keys():
+
+            return self.terrain_bonuses[terrain]
+        
+        else:
+
+            return 50.0
+
+    def set_moved(self, moved:bool):
         self.moved = moved
 
-    def get_moved(self):
+    def get_moved(self)->bool:
         return self.moved
 
     def set_team(self, team):
