@@ -3,6 +3,18 @@ from Scripts.Widgets.NodeBase import NodeBase
 import random
 import pygame
 import os
+import Constants
+
+random.seed()
+
+terrain_bonuses = {Constants.GRASS_TERRAIN:     60.0,
+                   Constants.FOREST_TERRAIN:    50.0,
+                   Constants.HILLS_TERRAIN:     50.0,
+                   Constants.WATER_TERRAIN:     60.0,
+                   Constants.MOUNTAIN_TERRAIN:  50.0,
+                   Constants.SAND_TERRAIN:      60.0,
+                   Constants.DIRT_TERRAIN:      60.0,
+                   Constants.SWAMP_TERRAIN:     60.0}
 
 class UndeadHero(Undead):
     def __init__(self, position = NodeBase((0,0), (50,150)), group = 1, team = 1, friendly = True, max_health = random.randint(80, 100), damage = random.randrange(15,25), movement = 4, level = 1):

@@ -1,14 +1,22 @@
 *************************************************************************
 
+V : 00.01.01
+
+Who : Raul Calatayud Ferre
+
+Date : 5 / 10 / 2023
+
+Description : 
+
+    - Terrain bonuses of the selected units now are shown at the hexagon where the mouse is.
+
+*************************************************************************
+
 V : 00.01.00
 
 Who : Raul Calatayud Ferre
 
 Date : 1 / 10 / 2023
-
-Commit number: -
-
-Task number : -
 
 Description : 
 
@@ -21,10 +29,6 @@ V : 00.00.05
 Who : Raul Calatayud Ferre
 
 Date : 1 / 10 / 2023
-
-Commit number: b0432fa48a0a59e552a677216a9ddcd8cd010b6d
-
-Task number : 4466
 
 Description : 
 
@@ -40,10 +44,6 @@ Who : Raul Calatayud Ferre
 
 Date : 30 / 09 / 2023
 
-Commit number: a23084f8e927a5d98d79d5c5252b7f5eaa3c57c1
-
-Task number : 4459 - 4465
-
 Description : 
 
     - Added new IA for Heroes controlled by IA
@@ -57,10 +57,6 @@ V : 00.00.03
 Who : Raul Calatayud Ferre
 
 Date : 28 / 09 / 2023
-
-Commit number: xxx
-
-Task number : 4455
 
 Description : 
 
@@ -76,10 +72,6 @@ Who : Raul Calatayud Ferre
 
 Date : 26 / 09 / 2023
 
-Commit number: xxx
-
-Task number : 4454
-
 Description : 
 
     - Added new Heroes : UndeadHero and HumanHero
@@ -91,10 +83,6 @@ V : 00.00.01
 Who : Raul Calatayud Ferre
 
 Date : 25 / 09 / 2023
-
-Commit number: xxx
-
-Task number : 4449
 
 Description : 
 
@@ -108,10 +96,6 @@ Who : Raul Calatayud Ferre
 
 Date : xx / xx / 2022
 
-Commit number: xxx
-
-Task number : xxxx
-
 Description : First developing of game, map creation, unit movement and combat
 
 *************************************************************************
@@ -122,10 +106,6 @@ V : 00.00.00 (game_version.big_feature.feature)
 Who : Raul Calatayud Ferre
 
 Date : D / M / Y
-
-Commit number: xxx
-
-Task number : xxxx
 
 Description : 
 
