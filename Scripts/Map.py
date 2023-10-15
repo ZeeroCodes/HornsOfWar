@@ -15,18 +15,7 @@ from Scripts.Units.Undead.UndeadHero.UndeadHero import UndeadHero
 
 import Constants
 
-RADIUS = 50
-
-BLACK = pygame.Color(0, 0, 0)
-WHITE = pygame.Color(255, 255, 255)
-RED = pygame.Color(255, 0, 0)
-BLUE = pygame.Color(0, 0, 255)
-YELLOW = pygame.Color(255, 255, 0)
-GREEN = pygame.Color(0, 255, 0)
-GREY = pygame.Color(80, 80, 80)
-GOLD = pygame.Color(204, 204, 0)
-
-HEIGHT = RADIUS*math.cos(math.radians(30))
+HEIGHT = Constants.RADIUS*math.cos(math.radians(30))
 
 class Map(object):
 
@@ -43,9 +32,7 @@ class Map(object):
         self.last_path_position = None
         self.last_unit_in_last_position = False
 
-        self.movement_speed = 3 # 1 = Fast
-                                # 2 = Medium
-                                # 3 = Slow
+        
 
         self.turn = 1
         self.finished = False
@@ -109,8 +96,8 @@ class Map(object):
         final_pixel_position = self.map_model.get_coords_by_position(final_position)
 
         # Get all desired pixels between these 2 positions to paint the unit on and simulate movement
-        horizontal = np.round(list(np.linspace(actual_pixel_position[0], final_pixel_position[0], self.movement_speed*20)))[:int((self.movement_speed*20)/2)]
-        vertical = np.round(list(np.linspace(actual_pixel_position[1], final_pixel_position[1], self.movement_speed*20)))[:int((self.movement_speed*20)/2)]
+        horizontal = np.round(list(np.linspace(actual_pixel_position[0], final_pixel_position[0], Constants.MOVEMENT_SPEED*20)))[:int((Constants.MOVEMENT_SPEED*20)/2)]
+        vertical = np.round(list(np.linspace(actual_pixel_position[1], final_pixel_position[1], Constants.MOVEMENT_SPEED*20)))[:int((Constants.MOVEMENT_SPEED*20)/2)]
 
         # Make aproximation to the attacked unit
         for i in range(len(horizontal)):
@@ -175,8 +162,8 @@ class Map(object):
             actual_pixel_position = unit.get_pixel_position()
 
             # Calculate pixel positions between these 2 positions
-            horizontal = np.round(list(np.linspace(actual_pixel_position[0], final_position[0], self.movement_speed*20)))
-            vertical = np.round(list(np.linspace(actual_pixel_position[1], final_position[1], self.movement_speed*20)))
+            horizontal = np.round(list(np.linspace(actual_pixel_position[0], final_position[0], Constants.MOVEMENT_SPEED*20)))
+            vertical = np.round(list(np.linspace(actual_pixel_position[1], final_position[1], Constants.MOVEMENT_SPEED*20)))
 
             # Move the unit and update its position
             for i in range(len(horizontal)):
@@ -266,7 +253,7 @@ class Map(object):
                             # Change its position and attack
                             self.start_movement(self.map_model.get_path(), selected_unit, True)
                             self.map_model.set_path()
-                            unit_in_position.hurt(selected_unit.get_damage())
+                            unit_in_position.hurt(self.get_attack_damage(selected_unit, unit_in_position))
                             self.map_model.set_unit_moved(selected_unit, True)
 
                         # If the last position is not reachable, move the unit to the maximum position
@@ -350,7 +337,7 @@ class Map(object):
             
             # Print a less transparent hexagon and a blue edge at the selected unit
             self.map_view.paint_hexagon(self.map_model.get_coords_by_position(self.map_model.get_selected_unit().get_position()), pygame.Color(0, 255, 0, 100))
-            self.map_view.draw_hexagon(self.map_model.get_coords_by_position(self.map_model.get_selected_unit().get_position()), BLUE) 
+            self.map_view.draw_hexagon(self.map_model.get_coords_by_position(self.map_model.get_selected_unit().get_position()), Constants.BLUE) 
             
             # Get mouse position and pixel position
             mouse_pixel_position = self.map_model.closest_hexagon(pygame.mouse.get_pos())
@@ -404,6 +391,11 @@ class Map(object):
                     
                     # If the unit is an enemy
                     else:
+                        feasible_neighbours = self.map_model.get_feasible_neighbours(selected_unit.get_nodebase())
+                        distance_between_units = self.map_model.movements_between_positions(nodebase1, nodebase2)
+                        if not feasible_neighbours and distance_between_units == 1:
+                            print("PEGADO Y RODEADO")
+                            self.map_model.get_new_path(nodebase1, nodebase2)
 
                         # If is a different position than the last_one
                         if mouse_position != self.previous_position:
@@ -430,7 +422,7 @@ class Map(object):
                         self.previous_position = mouse_position
                         path = self.map_model.get_path()
                         self.map_view.print_path(path[1:])
-                        self.map_view.print_path(path[:2], RED)
+                        self.map_view.print_path(path[:2], Constants.RED)
 
       
 
@@ -454,9 +446,9 @@ class Map(object):
             self.map_view.print_mouse_hexagon(mouse_pixel_position)
         else:
             if self.map_model.get_unit_in_position(mouse_position).get_friendly():
-                self.map_view.print_mouse_hexagon(mouse_pixel_position, BLUE)
+                self.map_view.print_mouse_hexagon(mouse_pixel_position, Constants.BLUE)
             else:
-                self.map_view.print_mouse_hexagon(mouse_pixel_position, RED)
+                self.map_view.print_mouse_hexagon(mouse_pixel_position, Constants.RED)
 
 
 
@@ -544,6 +536,16 @@ class Map(object):
     
 
 
+    def get_attack_damage(self, unit, attacked_unit):
+
+        damage = unit.get_damage()
+
+        terrain_bonification = attacked_unit.get_terrain_bonus(self.map_model.get_real_map_nodebase(attacked_unit.get_position()).get_terrain_id())
+
+        return int(damage*((100.0 - terrain_bonification)/100.0))
+
+
+
     # AI_TURN
     # Manages the movement and attack of every enemy unit
     def AI_turn(self, unit):
@@ -588,7 +590,7 @@ class Map(object):
 
                     # Damage enemy unit
                     attacked_unit = self.map_model.get_unit_in_position(nodebase3)
-                    attacked_unit.hurt(unit.get_damage())
+                    attacked_unit.hurt(self.get_attack_damage(unit, attacked_unit))
 
                     # If the enemy health is under0, it is killed and it convert to team 2
                     if (isinstance(unit, UndeadGhost) or isinstance(unit, UndeadHero)) and attacked_unit.get_health() <= 0:
