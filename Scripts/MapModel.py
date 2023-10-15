@@ -2,6 +2,7 @@ import pygame
 import math
 import os
 import numpy as np
+from copy import deepcopy
 
 from pygame.locals import *
 from Scripts.Widgets.NodeBase import NodeBase
@@ -9,6 +10,7 @@ from Scripts.Units.UnitArray import UnitArray
 from Scripts.Units.Humans.HumanWarrior.HumanWarrior import HumanWarrior
 from Scripts.Units.Humans.HumanHero.HumanHero import HumanHero
 from Scripts.Units.Undead.UndeadHero.UndeadHero import UndeadHero
+from Scripts.Units.Undead.UndeadGhost.UndeadGhost import UndeadGhost
 from Scripts.MapData import MapData
 
 import Constants
@@ -28,8 +30,8 @@ class MapModel(object):
         self.selected_unit_attack_movements = []
         self.selected_tile = None
         self.path = []
-        self.team_units = [2,UnitArray(),UnitArray()]
-        self.team_groups = [[1],[2]]
+        self.team_units = [0]
+        self.team_groups = [0]
         self.playing_team = 1
         self.teams_money = [2, 100, 100]
     
@@ -137,7 +139,7 @@ class MapModel(object):
 
         team = unit.get_team()
 
-        for group_team in self.team_groups:
+        for group_team in self.team_groups[1:]:
 
             if team in group_team:
 
@@ -548,45 +550,70 @@ class MapModel(object):
 
         rows = 0
         cols = 0
+        groups = 0
+        teams = 0
         dictionary = dict() 
+        self.team_units = [0]
+        self.team_groups = [0]
 
-        with open(os.path.abspath(os.getcwd()) + "\\Maps\\" + map_name + ".txt", 'r') as f:
+        with open(os.path.abspath(os.getcwd()) + "\\Maps\\" + str(map_name) + ".txt", 'r') as f:
 
+            dictionary = dict()
             lines = f.readlines()
             rows = int(lines[0])
             cols = int(lines[1])
+            groups = int(lines[2])
+            teams = int(lines[3])
+            self.teams_money[1] = int(lines[4])
 
-            for line in lines[2:]:
+            if self.team_groups[0] < groups:
 
-                number = []
-                char_number = ""
+                while self.team_groups[0] < groups:
+                    
+                    self.team_groups[0] += 1
+                    self.team_groups.append([])
 
-                for char in line:
+            if self.team_units[0] < teams:
 
-                    if char == " ":
+                while self.team_units[0] < teams:
+                    
+                    self.team_units[0] += 1
+                    self.team_units.append(UnitArray())
 
-                        number.append(int(char_number))
-                        char_number = ""
 
-                    else:
+            tiles_number = rows * cols
+            for line in lines[5:tiles_number+5]:
 
-                        char_number += char
+                line = line.split(' ')
 
-                number.append(int(char_number))
-                dictionary[(number[0], number[1])] = NodeBase((number[0], number[1]), (number[2], number[3]), number[4])
-        
+                position = (int(line[0]), int(line[1]))
+                pixel_position = (int(line[2]), int(line[3]))
+                terrain = int(line[4])
+                unit_nodebase = NodeBase(position, pixel_position, terrain)
+                dictionary[position] = unit_nodebase
+
+                if len(line) > 5:
+
+                    unit = self.get_unit_by_id(line[5])
+                    unit.set_id(line[5])
+                    unit.set_position(unit_nodebase)
+                    team = int(line[6])
+                    unit.set_team(team)
+                    group = int(line[7])
+                    unit.set_group(group)
+                    unit.set_damage(int(line[10]))
+                    unit.set_health(int(line[8]))
+                    unit.set_max_health(int(line[9]))
+                    unit.set_movement(int(line[11]))
+                    unit.set_moved(False)
+
+                    if not team in self.team_groups[group]:
+
+                        self.team_groups[group].append(team)
+                    
+                    self.add_unit(unit, team)
+
         self.map_data = MapData(rows, cols, dictionary)
-
-        return self.map_data
-
-
-    def can_move(self, unit):
-
-        if not self.get_feasible_neighbours(unit.get_nodebase()):
-
-            return False
-        
-        return True
 
 
     # GET_UNIT_MOVEMENT_POSITIONS
@@ -913,7 +940,7 @@ class MapModel(object):
     # Return the teams that are enemies from the argument team
     def get_enemy_teams(self, unit_team):
         enemy_teams = list()
-        for teams in self.team_groups:
+        for teams in self.team_groups[1:]:
             if unit_team not in teams:
                 for team in teams:
                     enemy_teams.append(team)
@@ -946,7 +973,116 @@ class MapModel(object):
         
 
 
+    # GET_UNIT_BY_ID
+    # Return a unit type depending on the id
+    def get_unit_by_id(self, id):
+        
+        unit_name = Constants.UNIT_DICTIONARY[id]
 
+        if unit_name == 'HumanHero':
+
+            unit = HumanHero()
+            image = unit.get_image().copy()
+            crown_image = unit.get_crown_image()
+            unit.set_image(None)
+            unit.set_crown_image(None)
+            new_unit = deepcopy(unit)
+            new_unit.set_image(image)
+            new_unit.set_crown_image(crown_image)
+
+            return new_unit
+    
+        elif unit_name == 'HumanWarrior':
+
+            unit = HumanWarrior()
+            image = unit.get_image().copy()
+            unit.set_image(None)
+            new_unit = deepcopy(unit)
+            new_unit.set_image(image)
+
+            return new_unit
+        
+        elif unit_name == 'UndeadHero':
+
+            unit = UndeadHero()
+            image = unit.get_image().copy()
+            crown_image = unit.get_crown_image()
+            unit.set_image(None)
+            unit.set_crown_image(None)
+            new_unit = deepcopy(unit)
+            new_unit.set_image(image)
+            new_unit.set_crown_image(crown_image)
+
+            return new_unit
+
+        elif unit_name == 'UndeadGhost':
+
+            unit = UndeadGhost()
+            image = unit.get_image().copy()
+            unit.set_image(None)
+            new_unit = deepcopy(unit)
+            new_unit.set_image(image)
+
+            return new_unit
+
+
+    def can_move(self, unit):
+
+        if not self.get_feasible_neighbours(unit.get_nodebase()):
+
+            return False
+        
+        return True
+        
+
+    # SAVE_MAP
+    def save_map(self, map_name = "new_map"):
+
+        rows = self.map_data.get_rows()
+        cols = self.map_data.get_cols()
+        dictionary = self.get_tile_dictionary()
+
+        lines = []
+
+        lines.append(str(rows))
+        lines.append("\n" + str(cols))
+        lines.append("\n" + str(self.team_groups[0]))
+        lines.append("\n" + str(self.team_units[0]))
+        lines.append("\n" + str(self.teams_money[1]))
+
+        for tile in dictionary.values():
+            
+            position = tile.get_position()
+            pixel_position = tile.get_pixel_position()
+            terrain = tile.get_terrain_id()
+            unit = self.get_unit_in_position(position)
+
+            line = "\n" + str(int(position[0])) + " " + str(int(position[1])) + " " + str(int(pixel_position[0])) + " " + str(int(pixel_position[1])) + " " + str(int(terrain))
+
+            if unit:
+
+                unit_id = unit.get_id()
+                team = unit.get_team()
+                group = unit.get_group()
+                health = unit.get_health()
+                max_health = unit.get_max_health()
+                damage = unit.get_damage()
+                movement = unit.get_movement()
+
+                line +=  " " + str(int(unit_id)) + " " + str(int(team)) + " " + str(int(group)) + " " + str(int(health)) + " " + str(int(max_health)) + " " + str(int(damage)) + " " + str(int(movement))
+
+            lines.append(line)
+
+        lines.append("\n" + "team 1")
+        lines.append("\n" + "0")
+        lines.append("\n" + "team 2")
+        lines.append("\n" + "0")
+
+        with open(os.path.abspath(os.getcwd()) + "\\Maps\\" + str(map_name) + ".txt", 'w') as f:
+
+            f.writelines(lines)
+
+            f.close()
 
 
 

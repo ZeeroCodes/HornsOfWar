@@ -10,12 +10,16 @@ class UndeadHero(Undead):
         self.level = level
         self.crown_image = pygame.image.load(os.path.abspath(os.getcwd()) + '\Images\Crown.png')
         self.crown_image = pygame.transform.scale(self.crown_image, (15, 10))
+        super().set_id("210")
 
     def getID(self):
         return 210 + self.level
     
     def get_crown_image(self):
         return self.crown_image
+    
+    def set_crown_image(self, image = None):
+        self.crown_image = image
 
 
 

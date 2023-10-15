@@ -31,7 +31,9 @@ class MapModel(object):
 
         self.unit_dictionary = {
             '111': 'HumanWarrior',
-            '211': 'UndeadGhost'}
+            '110': 'HumanWarrior',
+            '211': 'UndeadGhost',
+            '210': 'UndeadGhost'}
     
 
 

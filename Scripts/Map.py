@@ -30,7 +30,7 @@ HEIGHT = RADIUS*math.cos(math.radians(30))
 
 class Map(object):
 
-    def __init__(self, map_name = "TestMap"):
+    def __init__(self, map_name = "new_map"):
         
         pygame.init()
         self.map_model = MapModel()
@@ -49,27 +49,7 @@ class Map(object):
 
         self.turn = 1
         self.finished = False
-
-        nodebase2 = NodeBase((0,0), (50, 150))
-        ghost2 = HumanHero(nodebase2)
-        self.map_model.add_unit(ghost2)
-        nodebase1 = NodeBase((1,3), (275, 279))
-        ghost = HumanWarrior(nodebase1)
-        self.map_model.add_unit(ghost)
-        nodebase1 = NodeBase((3,1), (125, 451))
-        ghost = HumanWarrior(nodebase1)
-        self.map_model.add_unit(ghost)
-
-        nodebase2 = NodeBase((6,17), (1325, 709))
-        ghost2 = UndeadHero(nodebase2, 2, False)
-        self.map_model.add_unit(ghost2, 2)
-        nodebase1 = NodeBase((3,15), (1175, 451))
-        ghost = UndeadGhost(nodebase1, 2, False)
-        self.map_model.add_unit(ghost, 2) 
-        nodebase1 = NodeBase((5,14), (1100, 580))
-        ghost = UndeadGhost(nodebase1, 2, False)
-        self.map_model.add_unit(ghost, 2)
-
+        self.savegame_number = 0
 
 
     # CREATE_NEW_UNIT
@@ -688,6 +668,12 @@ class Map(object):
 
 
 
+    def savegame(self):
+
+        savegame_name = "savegame" + str(self.savegame_number)
+        self.map_model.save_map(savegame_name)
+
+
     # UPDATE_MAP
     # Update of the map status
     def update_map(self):
@@ -755,7 +741,7 @@ class Map(object):
 
             else:
 
-                for group in self.map_model.get_team_groups():
+                for group in self.map_model.get_team_groups()[1:]:
 
                     for team in group:
 
@@ -777,6 +763,7 @@ class Map(object):
                     if self.finished:
                         break;
 
+                self.savegame()
                 self.turn = 1
                 self.map_model.restart_unit_movements()
                 print("Turno del equipo 1")
