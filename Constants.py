@@ -25,3 +25,7 @@ GREEN = pygame.Color(0, 255, 0)
 YELLOW = pygame.Color(255, 255, 0)
 GREY = pygame.Color(80, 80, 80)
 GOLD = pygame.Color(204, 204, 0)
+
+MOVEMENT_SPEED = 1  # 1 = Fast
+                    # 2 = Medium
+                    # 3 = Slow

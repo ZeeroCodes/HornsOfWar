@@ -52,8 +52,34 @@ class MapModel(object):
     #################################################################
 
 
+
+    def get_real_map_nodebase(self, position):
+
+        map_position = position
+
+        if isinstance(position, NodeBase):
+
+            self.selected_tile = position.get_position()
+
+        return self.get_tile_dictionary()[map_position]
+    
+
+
+    def get_real_map_terrain(self, position):
+
+        map_position = position
+
+        if isinstance(position, NodeBase):
+
+            self.selected_tile = position.get_position()
+
+        return self.get_tile_dictionary()[map_position].get_terrain_id()
+
+
+
     def get_playing_team(self):
         return self.playing_team
+
 
 
     def get_money(self, team = 1):
@@ -944,8 +970,6 @@ class MapModel(object):
 
         return nearest_enemy_unit
         
-
-
 
 
 
