@@ -5,8 +5,9 @@ import os
 
 class Unit():
 
-    def __init__(self, image_path, position = NodeBase((0,0), (50,150)), team = 1, friendly = True, max_health = 100, damage = 10, movement = 2):
+    def __init__(self, image_path, position = NodeBase((0,0), (50,150)), group = 1, team = 1, friendly = True, max_health = 100, damage = 10, movement = 2):
         
+        self.id = None
         self.max_health = max_health
         self.health = max_health
         self.damage = damage
@@ -18,6 +19,7 @@ class Unit():
         self.team = team
         self.warrior_image = pygame.image.load(os.path.abspath(os.getcwd()) + image_path)
         self.warrior_image = pygame.transform.scale(self.warrior_image, (60, 70))
+        self.group = group
     
     def set_moved(self, moved):
         self.moved = moved
@@ -37,14 +39,66 @@ class Unit():
     def set_friendly(self, friendly):
         self.friendly = friendly
 
+
+
+     # GROUP
+    def set_group(self, group):
+        self.group = group
+
+    def get_group(self):
+        return self.group
+
+
+    
+     # IMAGE
+    def set_image(self, name = None):
+        if name == None:
+            self.warrior_image = None
+        elif isinstance(name, str):
+            self.warrior_image = pygame.image.load(os.path.abspath(os.getcwd()) + name)
+            self.warrior_image = pygame.transform.scale(self.warrior_image, (60, 70))
+        else:
+            self.warrior_image = name
+
     def get_image(self): 
         return self.warrior_image
 
+
+
+    # ID
+    def set_id(self, id):
+        self.id = id
+
+    def get_id(self):
+        return self.id
+    
+
+
+    # GROUP
+    def set_group(self, group):
+        self.group = group
+
+    def get_group(self):
+        return self.group
+    
+
+
+    # ALIVE
     def get_alive(self):
         return self.alive
 
     def get_health(self):
         return self.health
+
+
+
+    # MAX_HEALTH
+    def set_max_health(self, max_health):
+        self.max_health = max_health
+
+        if self.health > max_health:
+
+            self.health = max_health
 
     def get_max_health(self):
         return self.max_health

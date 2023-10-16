@@ -25,3 +25,10 @@ GREEN = pygame.Color(0, 255, 0)
 YELLOW = pygame.Color(255, 255, 0)
 GREY = pygame.Color(80, 80, 80)
 GOLD = pygame.Color(204, 204, 0)
+
+UNIT_DICTIONARY =   {   '110': 'HumanHero',
+                        '111': 'HumanWarrior',
+                        
+                        '210': 'UndeadHero',
+                        '211': 'UndeadGhost'
+                    }
