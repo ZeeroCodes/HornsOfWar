@@ -5,8 +5,8 @@ import pygame
 import os
 
 class HumanHero(Human):
-    def __init__(self, position = NodeBase((0,0), (50,150)), team = 1 ,friendly = True, max_health = random.randint(100, 150), damage = random.randrange(25,40), movement = 3, level = 1):
-        super().__init__("Warrior\\human_warrior.png", position, team, friendly, max_health, damage, movement)
+    def __init__(self, position = NodeBase((0,0), (50,150)), group = 1,team = 1 ,friendly = True, max_health = random.randint(100, 150), damage = random.randrange(25,40), movement = 3, level = 1):
+        super().__init__("Warrior\\human_warrior.png", position, group, team, friendly, max_health, damage, movement)
         self.level = level
         self.crown_image = pygame.image.load(os.path.abspath(os.getcwd()) + '\Images\Crown.png')
         self.crown_image = pygame.transform.scale(self.crown_image, (15, 10))

@@ -265,7 +265,7 @@ class MapModel(object):
     # ADD_UNIT
     # Adds a unit to the friendly or enemy array
     def add_unit(self, unit = HumanWarrior((0,0)), team = 1):
-
+        print(f"{team} for {self.team_units}")
         self.team_units[team].add_unit(unit)
         self.print_units()
 

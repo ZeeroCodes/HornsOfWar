@@ -595,7 +595,7 @@ class Map(object):
 
                         self.map_model.delete_unit(attacked_unit)
                         nodebase = attacked_unit.get_nodebase()
-                        ghost = UndeadGhost(nodebase, unit.get_team(), False)
+                        ghost = UndeadGhost(nodebase, group = unit.get_group(), team = unit.get_team())
                         self.create_new_unit(ghost)
                         self.map_model.earn(Constants.HUMAN_WARRIOR_COST/2, unit.get_team())
 
@@ -667,11 +667,14 @@ class Map(object):
             self.map_view.print_selected_tile(self.map_model.get_selected_tile())
 
 
-
+    # SAVEGAME
+    # Saves an instance of the actual map to txt
     def savegame(self):
 
         savegame_name = "savegame" + str(self.savegame_number)
         self.map_model.save_map(savegame_name)
+        self.savegame_number = self.savegame_number + 1
+
 
 
     # UPDATE_MAP
