@@ -1,14 +1,27 @@
 *************************************************************************
 
+V : 00.01.02
+
+Who : Raul Calatayud Ferre
+
+Date : 16 / 10 / 2023
+
+Description : 
+
+    - Fixed a problem with surrounded units that crashed or not attacked.
+
+*************************************************************************
+
 V : 00.01.01
 
 Who : Raul Calatayud Ferre
 
-Date : 5 / 10 / 2023
+Date : 16 / 10 / 2023
 
 Description : 
 
-    - Terrain bonuses of the selected units now are shown at the hexagon where the mouse is.
+    - Implemented savegames for game debugging
+    - Now the game and the Map Editor have the same saved map format.
 
 *************************************************************************
 
