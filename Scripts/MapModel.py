@@ -334,9 +334,13 @@ class MapModel(object):
 
             position = position.get_position()
 
+        if position == self.selected_unit.get_position():
+
+            return True
+
         for selected_unit_movement in self.selected_unit_movements:
 
-            if position == selected_unit_movement.get_position() or position == self.selected_unit.get_position():
+            if position == selected_unit_movement.get_position():
 
                 return True
 

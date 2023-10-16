@@ -32,6 +32,6 @@ UNIT_DICTIONARY =   {   '110': 'HumanHero',
                         '210': 'UndeadHero',
                         '211': 'UndeadGhost'
                     }
-MOVEMENT_SPEED = 1  # 1 = Fast
+MOVEMENT_SPEED = 2  # 1 = Fast
                     # 2 = Medium
                     # 3 = Slow

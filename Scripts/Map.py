@@ -2,6 +2,7 @@ import pygame
 import math
 import numpy as np
 from pygame.locals import *
+from random import random
 
 from Scripts.MapModel import MapModel
 from Scripts.MapView import MapView
@@ -347,7 +348,7 @@ class Map(object):
             selected_unit = self.map_model.get_selected_unit()
 
             # If the mouse is inside the map
-            if mouse_pixel_position != None and self.map_model.can_move(self.map_model.get_selected_unit()):
+            if mouse_pixel_position != None: 
 
                 # Create initial nodebase and final nodebases
                 nodebase1 = NodeBase(selected_unit.get_position(), self.map_model.get_coords_by_position(selected_unit.get_position()))
@@ -391,32 +392,39 @@ class Map(object):
                     
                     # If the unit is an enemy
                     else:
-                        feasible_neighbours = self.map_model.get_feasible_neighbours(selected_unit.get_nodebase())
-                        distance_between_units = self.map_model.movements_between_positions(nodebase1, nodebase2)
-                        if not feasible_neighbours and distance_between_units == 1:
-                            print("PEGADO Y RODEADO")
-                            self.map_model.get_new_path(nodebase1, nodebase2)
-
-                        # If is a different position than the last_one
-                        if mouse_position != self.previous_position:
-
-                            # If the last position was an empty one, gets the path to that position and then
-                            # adds the final movement to attack the enemy
-                            if self.last_unit_in_position == None:
-
-                                nodebase_last = NodeBase(self.last_path_position, self.map_model.get_coords_by_position(self.last_path_position))
-                                path1 = self.map_model.get_new_path(nodebase1, nodebase_last)
-                                path2 = self.map_model.get_new_path(nodebase_last, nodebase2)
-                                self.map_model.set_path(path2 + path1[1:])
-                            
-                            # If the last position had a unit in it, theres no previous position, so recalculates
-                            # the path to the shortest one
-                            else:
-
+         
+                        if self.map_model.can_move(self.map_model.get_selected_unit()):
+                           
+                            feasible_neighbours = self.map_model.get_feasible_neighbours(selected_unit.get_nodebase())
+                            distance_between_units = self.map_model.movements_between_positions(nodebase1, nodebase2)
+                            if not feasible_neighbours and distance_between_units == 1:
+                                print("PEGADO Y RODEADO")
                                 self.map_model.get_new_path(nodebase1, nodebase2)
-                            
-                            # Updates last unit in the position
-                            self.last_unit_in_position = unit_in_position
+
+                            # If is a different position than the last_one
+                            if mouse_position != self.previous_position:
+
+                                # If the last position was an empty one, gets the path to that position and then
+                                # adds the final movement to attack the enemy
+                                if self.last_unit_in_position == None:
+
+                                    nodebase_last = NodeBase(self.last_path_position, self.map_model.get_coords_by_position(self.last_path_position))
+                                    path1 = self.map_model.get_new_path(nodebase1, nodebase_last)
+                                    path2 = self.map_model.get_new_path(nodebase_last, nodebase2)
+                                    self.map_model.set_path(path2 + path1[1:])
+                                
+                                # If the last position had a unit in it, theres no previous position, so recalculates
+                                # the path to the shortest one
+                                else:
+
+                                    self.map_model.get_new_path(nodebase1, nodebase2)
+                                
+                                # Updates last unit in the position
+                                self.last_unit_in_position = unit_in_position
+
+                        else:
+
+                            self.map_model.get_new_path(nodebase1, nodebase2)
                             
                         # Prints path
                         self.previous_position = mouse_position
@@ -452,6 +460,8 @@ class Map(object):
 
 
 
+    # GET_UNIT_VALUES_DICTIONARY
+    # Return a dictionary of all available tiles and actions and a value for each of them
     def get_unit_values_dictionary(self, unit):
 
         
@@ -536,6 +546,8 @@ class Map(object):
     
 
 
+    # GET_ATTACK_DAMAGE
+    # Returns the damage a unit does when attacking
     def get_attack_damage(self, unit, attacked_unit):
 
         damage = unit.get_damage()
