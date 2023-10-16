@@ -16,7 +16,7 @@ terrain_bonuses = {Constants.GRASS_TERRAIN:     60.0,
 
 class HumanWarrior(Human):
     def __init__(self, position = NodeBase((0,0), (50,150)), group = 1, team = 1 ,friendly = True, max_health = random.randint(60, 80), damage = random.randrange(15,30), movement = 2, level = 1):
-        super().__init__("Warrior\\human_warrior.png", position, group, team, friendly, max_health, damage, movement)
+        super().__init__("Warrior\\human_warrior.png", position, group, team, friendly, max_health, damage, movement, terrain_bonuses)
         self.level = level
         super().set_id("111")
 

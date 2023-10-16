@@ -707,6 +707,34 @@ class Map(object):
                     self.map_view.print_terrain_bonus(mouse_pixel_position, terrain_bonus, Constants.GREEN)
 
 
+    # PRINT_TERRAIN_BONUS
+    # Prints in the hexagon where the mouse is the terrain bonus for the selected unit
+    def print_terrain_bonus(self):
+
+        selected_unit = self.map_model.get_selected_unit()  
+        mouse_pixel_position = self.map_model.closest_hexagon(pygame.mouse.get_pos())
+        mouse_position = self.map_model.get_position_by_coords(mouse_pixel_position)
+        map_nodebase = self.map_model.get_tile_dictionary()
+
+        if mouse_position in self.map_model.get_tile_dictionary().keys() and selected_unit != None:
+        
+            terrain_bonus = selected_unit.get_terrain_bonus(map_nodebase[mouse_position].get_terrain_id())
+
+            if not self.map_model.occupied(mouse_position):
+
+                if terrain_bonus < 40.0:
+
+                    self.map_view.print_terrain_bonus(mouse_pixel_position, terrain_bonus, Constants.RED)
+
+                elif terrain_bonus < 60.0:
+
+                    self.map_view.print_terrain_bonus(mouse_pixel_position, terrain_bonus, Constants.GOLD)
+
+                else:
+
+                    self.map_view.print_terrain_bonus(mouse_pixel_position, terrain_bonus, Constants.GREEN)
+
+
     # UPDATE_MAP
     # Update of the map status
     def update_map(self):
