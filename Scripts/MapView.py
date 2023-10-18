@@ -124,11 +124,10 @@ class MapView(object):
 
     # PRINT_MONEY
     # Draws the available money the player has
-    def print_money(self, money):
-        self.screen.blit(self.money_image, (170, 25))
+    def print_money(self, money, pixel_position = (205, 38)):
+        self.screen.blit(self.money_image, (pixel_position[0] - 35, pixel_position[1]))
 
         img = self.font.render(str(money), False, Constants.BLACK)
-        pixel_position = (205, 38)
         self.screen.blit(img, pixel_position)
 
 

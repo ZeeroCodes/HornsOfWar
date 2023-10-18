@@ -33,7 +33,7 @@ class MapModel(object):
         self.team_units = [0]
         self.team_groups = [0]
         self.playing_team = 1
-        self.teams_money = [2, 100, 100]
+        self.teams_money = [2, Constants.PLAYER_INITIAL_MONEY, Constants.IA_INITIAL_MONEY]
     
 
 
@@ -501,7 +501,7 @@ class MapModel(object):
 
             pos = position.get_position()
 
-        if pos[0] >= 0 and pos[0] < math.ceil(self.map_data.get_rows()/2) and pos[1] >= 0 and pos[1] < self.map_data.get_cols():
+        if pos[0] >= 0 and pos[0] < self.map_data.get_rows() and pos[1] >= 0 and pos[1] < self.map_data.get_cols():
             
             return True
 

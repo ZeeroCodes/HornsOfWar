@@ -1,7 +1,7 @@
 class Version(object):
 
-    def __init__(self, rows = 0, cols = 0, tiles_dictionary = None):
-        self.version = "00.01.02"
+    def __init__(self):
+        self.version = "00.01.03"
 
     def get_version(self):
         return self.version

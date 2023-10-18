@@ -21,7 +21,22 @@ class Unit():
         self.warrior_image = pygame.transform.scale(self.warrior_image, (60, 70))
         self.group = group
         self.terrain_bonuses = terrain_bonuses
+        self.level = 1
+
+    # LEVEL
+
+    def set_level(self, level):
+        self.level = level
+
+    def get_level(self)->int:
+        return self.level
     
+    def level_up(self):
+        if(self.level < 10 and self.level > 0):
+            self.level += 1
+    
+    # TERRAIN BONUSES
+
     def set_terrain_bonuses(self, terrain_bonuses:dict):
         self.terrain_bonuses = terrain_bonuses
 
