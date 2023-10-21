@@ -691,6 +691,10 @@ class Map(object):
 
                         self.map_model.set_selected_tile(None)
 
+                    else:
+                        
+                        self.map_model.selected_tile = NodeBase(mouse_position, mouse_pixel_position, Constants.SPAWNPOINT)
+
                 else:
 
                     self.map_model.selected_tile = NodeBase(mouse_position, mouse_pixel_position, Constants.SPAWNPOINT)
