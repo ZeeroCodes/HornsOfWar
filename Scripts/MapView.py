@@ -72,11 +72,14 @@ class MapView(object):
         self.screen.blit(img, pixel_position)
 
 
+
     def print_winner_team(self, team):
 
-        img = self.font.render("Wins team " + str(team), False, Constants.BLACK)
-        pixel_position = (300, 25)
+        img = self.winning_font.render("Wins team " + str(team), False, Constants.BLACK)
+        pixel_position = (700, 25)
         self.screen.blit(img, pixel_position)
+
+
 
     # SET_RESOLUTION
     def set_resolution(self, screen_resolution):
@@ -118,14 +121,15 @@ class MapView(object):
         self.screen.blit(hex_surface, (center[0] - Constants.RADIUS, center[1] - Constants.RADIUS))
 
   
+
     # PRINT_MONEY
     # Draws the available money the player has
-    def print_money(self, money):
-        self.screen.blit(self.money_image, (170, 25))
+    def print_money(self, money, pixel_position = (205, 38)):
+        self.screen.blit(self.money_image, (pixel_position[0] - 35, pixel_position[1]))
 
         img = self.font.render(str(money), False, Constants.BLACK)
-        pixel_position = (205, 38)
         self.screen.blit(img, pixel_position)
+
 
 
     # PRINT_UNIT
@@ -249,11 +253,23 @@ class MapView(object):
 
 
 
+    # PRINT_TERRAIN_BONUS
+    # Draws the terrain bonus that the selected unit have on the tile
+    def print_terrain_bonus(self, pixel_position = (50, 150), terrain_bonus = 50.0, color = Constants.GOLD):
+
+        if pixel_position != None:
+            terrain_font = pygame.font.SysFont("Caladea", 35)
+            img = terrain_font.render(str(int(terrain_bonus)) + "%", False, color)
+            pixel_position = (pixel_position[0]-32, pixel_position[1]-22)
+            self.screen.blit(img, pixel_position)
+
+
+
     # PRINT_UNIT_MOVEMENTS
     # Paint an hexagon for every movement position
     def print_unit_movements(self, unit_movements):
         for tile in unit_movements:
-            self.paint_hexagon(tile.get_pixel_position(), pygame.Color(0, 255, 0, 80))
+            self.paint_hexagon(tile.get_pixel_position(), pygame.Color(0, 255, 0, 50))
             self.draw_hexagon(tile.get_pixel_position())
 
 

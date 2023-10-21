@@ -3,3 +3,5 @@
 Scripts/__pycache__/*
 SavedSprites
 SavedSprites/*
+Maps/savegame*
+Binaries/*

@@ -33,7 +33,7 @@ class MapModel(object):
         self.team_units = [0]
         self.team_groups = [0]
         self.playing_team = 1
-        self.teams_money = [2, 100, 100]
+        self.teams_money = [2, Constants.PLAYER_INITIAL_MONEY, Constants.IA_INITIAL_MONEY]
     
 
 
@@ -54,8 +54,34 @@ class MapModel(object):
     #################################################################
 
 
+
+    def get_real_map_nodebase(self, position):
+
+        map_position = position
+
+        if isinstance(position, NodeBase):
+
+            self.selected_tile = position.get_position()
+
+        return self.get_tile_dictionary()[map_position]
+    
+
+
+    def get_real_map_terrain(self, position):
+
+        map_position = position
+
+        if isinstance(position, NodeBase):
+
+            self.selected_tile = position.get_position()
+
+        return self.get_tile_dictionary()[map_position].get_terrain_id()
+
+
+
     def get_playing_team(self):
         return self.playing_team
+
 
 
     def get_money(self, team = 1):
@@ -308,9 +334,13 @@ class MapModel(object):
 
             position = position.get_position()
 
+        if position == self.selected_unit.get_position():
+
+            return True
+
         for selected_unit_movement in self.selected_unit_movements:
 
-            if position == selected_unit_movement.get_position() or position == self.selected_unit.get_position():
+            if position == selected_unit_movement.get_position():
 
                 return True
 
@@ -471,7 +501,7 @@ class MapModel(object):
 
             pos = position.get_position()
 
-        if pos[0] >= 0 and pos[0] < math.ceil(self.map_data.get_rows()/2) and pos[1] >= 0 and pos[1] < self.map_data.get_cols():
+        if pos[0] >= 0 and pos[0] < self.map_data.get_rows() and pos[1] >= 0 and pos[1] < self.map_data.get_cols():
             
             return True
 
@@ -1085,11 +1115,54 @@ class MapModel(object):
             f.close()
 
 
+    def get_nearest_structure(self, map_position):
+
+        position = map_position
+
+        if isinstance(map_position, NodeBase):
+
+            position = map_position.get_position()
+
+        structure_dictionary = dict()
+        tile_dictionary = self.get_tile_dictionary()
+
+        for key in tile_dictionary.keys():
+
+            if tile_dictionary[key].get_terrain_id() == Constants.STRUCTURE_TERRAIN:
+
+                structure_dictionary[key] = deepcopy(tile_dictionary[key])
+
+        if structure_dictionary:
+
+            min_distance_key = list(structure_dictionary.keys())[0]
+            min_distance = self.map_data.get_rows()*self.map_data.get_cols()
+
+            for key in structure_dictionary.keys():
+                
+                distance_to_structure = self.movements_between_positions(position, structure_dictionary[key].get_position())
+
+                if distance_to_structure < min_distance:
+
+                    min_distance = distance_to_structure
+                    min_distance_key = key
+
+            return deepcopy(structure_dictionary[min_distance_key])
+
+        return None
 
 
 
+    def distance_to_nearest_structure(self, map_position):
 
+        position = map_position
 
+        if isinstance(map_position, NodeBase):
+
+            position = map_position.get_position()
+
+        nearest_structure = self.get_nearest_structure(position)
+
+        return self.movements_between_positions(nearest_structure.get_position(), position)
     
 
         

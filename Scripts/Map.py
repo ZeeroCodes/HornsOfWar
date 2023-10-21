@@ -2,6 +2,7 @@ import pygame
 import math
 import numpy as np
 from pygame.locals import *
+from random import random
 
 from Scripts.MapModel import MapModel
 from Scripts.MapView import MapView
@@ -15,18 +16,7 @@ from Scripts.Units.Undead.UndeadHero.UndeadHero import UndeadHero
 
 import Constants
 
-RADIUS = 50
-
-BLACK = pygame.Color(0, 0, 0)
-WHITE = pygame.Color(255, 255, 255)
-RED = pygame.Color(255, 0, 0)
-BLUE = pygame.Color(0, 0, 255)
-YELLOW = pygame.Color(255, 255, 0)
-GREEN = pygame.Color(0, 255, 0)
-GREY = pygame.Color(80, 80, 80)
-GOLD = pygame.Color(204, 204, 0)
-
-HEIGHT = RADIUS*math.cos(math.radians(30))
+HEIGHT = Constants.RADIUS*math.cos(math.radians(30))
 
 class Map(object):
 
@@ -43,9 +33,7 @@ class Map(object):
         self.last_path_position = None
         self.last_unit_in_last_position = False
 
-        self.movement_speed = 3 # 1 = Fast
-                                # 2 = Medium
-                                # 3 = Slow
+        
 
         self.turn = 1
         self.finished = False
@@ -109,8 +97,8 @@ class Map(object):
         final_pixel_position = self.map_model.get_coords_by_position(final_position)
 
         # Get all desired pixels between these 2 positions to paint the unit on and simulate movement
-        horizontal = np.round(list(np.linspace(actual_pixel_position[0], final_pixel_position[0], self.movement_speed*20)))[:int((self.movement_speed*20)/2)]
-        vertical = np.round(list(np.linspace(actual_pixel_position[1], final_pixel_position[1], self.movement_speed*20)))[:int((self.movement_speed*20)/2)]
+        horizontal = np.round(list(np.linspace(actual_pixel_position[0], final_pixel_position[0], Constants.MOVEMENT_SPEED*20)))[:int((Constants.MOVEMENT_SPEED*20)/2)]
+        vertical = np.round(list(np.linspace(actual_pixel_position[1], final_pixel_position[1], Constants.MOVEMENT_SPEED*20)))[:int((Constants.MOVEMENT_SPEED*20)/2)]
 
         # Make aproximation to the attacked unit
         for i in range(len(horizontal)):
@@ -175,8 +163,8 @@ class Map(object):
             actual_pixel_position = unit.get_pixel_position()
 
             # Calculate pixel positions between these 2 positions
-            horizontal = np.round(list(np.linspace(actual_pixel_position[0], final_position[0], self.movement_speed*20)))
-            vertical = np.round(list(np.linspace(actual_pixel_position[1], final_position[1], self.movement_speed*20)))
+            horizontal = np.round(list(np.linspace(actual_pixel_position[0], final_position[0], Constants.MOVEMENT_SPEED*20)))
+            vertical = np.round(list(np.linspace(actual_pixel_position[1], final_position[1], Constants.MOVEMENT_SPEED*20)))
 
             # Move the unit and update its position
             for i in range(len(horizontal)):
@@ -266,7 +254,7 @@ class Map(object):
                             # Change its position and attack
                             self.start_movement(self.map_model.get_path(), selected_unit, True)
                             self.map_model.set_path()
-                            unit_in_position.hurt(selected_unit.get_damage())
+                            unit_in_position.hurt(self.get_attack_damage(selected_unit, unit_in_position))
                             self.map_model.set_unit_moved(selected_unit, True)
 
                         # If the last position is not reachable, move the unit to the maximum position
@@ -349,8 +337,8 @@ class Map(object):
             self.map_view.print_unit_movements(selected_unit_movements)
             
             # Print a less transparent hexagon and a blue edge at the selected unit
-            self.map_view.paint_hexagon(self.map_model.get_coords_by_position(self.map_model.get_selected_unit().get_position()), pygame.Color(0, 255, 0, 150))
-            self.map_view.draw_hexagon(self.map_model.get_coords_by_position(self.map_model.get_selected_unit().get_position()), BLUE) 
+            self.map_view.paint_hexagon(self.map_model.get_coords_by_position(self.map_model.get_selected_unit().get_position()), pygame.Color(0, 255, 0, 100))
+            self.map_view.draw_hexagon(self.map_model.get_coords_by_position(self.map_model.get_selected_unit().get_position()), Constants.BLUE) 
             
             # Get mouse position and pixel position
             mouse_pixel_position = self.map_model.closest_hexagon(pygame.mouse.get_pos())
@@ -360,7 +348,7 @@ class Map(object):
             selected_unit = self.map_model.get_selected_unit()
 
             # If the mouse is inside the map
-            if mouse_pixel_position != None and self.map_model.can_move(self.map_model.get_selected_unit()):
+            if mouse_pixel_position != None: 
 
                 # Create initial nodebase and final nodebases
                 nodebase1 = NodeBase(selected_unit.get_position(), self.map_model.get_coords_by_position(selected_unit.get_position()))
@@ -404,33 +392,45 @@ class Map(object):
                     
                     # If the unit is an enemy
                     else:
-
-                        # If is a different position than the last_one
-                        if mouse_position != self.previous_position:
-
-                            # If the last position was an empty one, gets the path to that position and then
-                            # adds the final movement to attack the enemy
-                            if self.last_unit_in_position == None:
-
-                                nodebase_last = NodeBase(self.last_path_position, self.map_model.get_coords_by_position(self.last_path_position))
-                                path1 = self.map_model.get_new_path(nodebase1, nodebase_last)
-                                path2 = self.map_model.get_new_path(nodebase_last, nodebase2)
-                                self.map_model.set_path(path2 + path1[1:])
-                            
-                            # If the last position had a unit in it, theres no previous position, so recalculates
-                            # the path to the shortest one
-                            else:
-
+         
+                        if self.map_model.can_move(self.map_model.get_selected_unit()):
+                           
+                            feasible_neighbours = self.map_model.get_feasible_neighbours(selected_unit.get_nodebase())
+                            distance_between_units = self.map_model.movements_between_positions(nodebase1, nodebase2)
+                            if not feasible_neighbours and distance_between_units == 1:
+                                print("PEGADO Y RODEADO")
                                 self.map_model.get_new_path(nodebase1, nodebase2)
-                            
-                            # Updates last unit in the position
-                            self.last_unit_in_position = unit_in_position
+
+                            # If is a different position than the last_one
+                            if mouse_position != self.previous_position:
+
+                                # If the last position was an empty one, gets the path to that position and then
+                                # adds the final movement to attack the enemy
+                                if self.last_unit_in_position == None:
+
+                                    nodebase_last = NodeBase(self.last_path_position, self.map_model.get_coords_by_position(self.last_path_position))
+                                    path1 = self.map_model.get_new_path(nodebase1, nodebase_last)
+                                    path2 = self.map_model.get_new_path(nodebase_last, nodebase2)
+                                    self.map_model.set_path(path2 + path1[1:])
+                                
+                                # If the last position had a unit in it, theres no previous position, so recalculates
+                                # the path to the shortest one
+                                else:
+
+                                    self.map_model.get_new_path(nodebase1, nodebase2)
+                                
+                                # Updates last unit in the position
+                                self.last_unit_in_position = unit_in_position
+
+                        else:
+
+                            self.map_model.get_new_path(nodebase1, nodebase2)
                             
                         # Prints path
                         self.previous_position = mouse_position
                         path = self.map_model.get_path()
                         self.map_view.print_path(path[1:])
-                        self.map_view.print_path(path[:2], RED)
+                        self.map_view.print_path(path[:2], Constants.RED)
 
       
 
@@ -454,59 +454,124 @@ class Map(object):
             self.map_view.print_mouse_hexagon(mouse_pixel_position)
         else:
             if self.map_model.get_unit_in_position(mouse_position).get_friendly():
-                self.map_view.print_mouse_hexagon(mouse_pixel_position, BLUE)
+                self.map_view.print_mouse_hexagon(mouse_pixel_position, Constants.BLUE)
             else:
-                self.map_view.print_mouse_hexagon(mouse_pixel_position, RED)
+                self.map_view.print_mouse_hexagon(mouse_pixel_position, Constants.RED)
 
 
 
+    # CALCULATE_TILE_VALUE
+    # Return the value of the tile for unit movement
+    def calculate_tile_value(self, unit, attacked_unit)->int:
+
+        unit_terrain = self.map_model.get_real_map_nodebase(unit.get_position())
+        unit_terrain_bonus = float(unit.get_terrain_bonus(unit_terrain)/100.0) # Value of the terrain, until different terrains it is 1
+        
+        attacked_unit_terrain = self.map_model.get_real_map_nodebase(attacked_unit.get_position())
+        attacked_unit_terrain_bonus = float(unit.get_terrain_bonus(attacked_unit_terrain)/100.0) # Value of the terrain, until different terrains it is 1
+        
+        unit_estimated_damage = unit.get_damage()*(100 - attacked_unit_terrain_bonus)/100
+        movement = Constants.IA_MOVEMENT_VALUE * unit_terrain_bonus
+        can_attack = 0
+        can_kill = 0
+        is_heroe = 0
+        percentage_of_damage = (Constants.IA_BONUS_FOR_DAMAGE_PERCENTAGE * unit_estimated_damage) / attacked_unit.get_max_health()
+        level_bonus = Constants.IA_BONUS_PER_LEVEL * attacked_unit.get_level()
+        health_difference = attacked_unit.get_max_health() - attacked_unit.get_health()
+
+        if attacked_unit != None:
+
+            can_attack = Constants.IA_BONUS_PER_CAN_ATTACK
+
+        if unit_estimated_damage >= attacked_unit.get_health():
+
+            can_kill = Constants.IA_BONUS_PER_CAN_KILL
+
+        if isinstance(unit, HumanHero) or isinstance(unit, UndeadHero):
+
+            is_heroe = Constants.IA_BONUS_PER_IS_HEROE
+
+        return int(unit_estimated_damage * unit_terrain_bonus * (can_attack + can_kill + is_heroe + percentage_of_damage + level_bonus + health_difference))
+
+
+
+    # GET_UNIT_VALUES_DICTIONARY
+    # Return a dictionary of all available tiles and actions and a value for each of them
     def get_unit_values_dictionary(self, unit):
 
-        
-        terrain = 1.0 # Value of the terrain, until different terrains it is 1
         # Get available movements and units that the unit can attack
         movement_dictionary = dict()
         available_movements = self.map_model.get_movement_positions(unit)
         available_movements.append(self.map_model.get_tile_dictionary()[unit.get_nodebase().get_position()])
         attacking_movements = self.map_model.get_attacking_positions(available_movements, unit)
 
-        enemy_unit = self.map_model.get_nearest_enemy_unit(unit)
-        path = self.map_model.get_new_path(unit.get_nodebase(), enemy_unit.get_nodebase())
+        nearest_enemy_unit = self.map_model.get_nearest_enemy_unit(unit)
+        path = self.map_model.get_new_path(unit.get_nodebase(), nearest_enemy_unit.get_nodebase())
         
         movement_value = 0
 
+
+        # MOVEMENT CALCULATION WITHOUT ATTACKING FOR REACHABLE TILES
         for tile in available_movements:
 
-            if isinstance(unit, HumanHero) or isinstance(unit, UndeadHero):
+            real_nodebase = self.map_model.get_real_map_nodebase(tile.get_position())
+            terrain = float(unit.get_terrain_bonus(real_nodebase.get_terrain_id())/100.0) # Value of the terrain, until different terrains it is 1
+        
 
-                if tile.get_terrain_id() == Constants.STRUCTURE_TERRAIN:
+            terrain_is_structure = tile.get_terrain_id() == Constants.STRUCTURE_TERRAIN 
+            unit_is_hero = isinstance(unit, HumanHero) or isinstance(unit, UndeadHero)
+            enough_gold_for_unit = self.map_model.get_money(unit.get_team()) >= Constants.HUMAN_WARRIOR_COST
+            exist_feasible_spawnpoints = self.map_model.get_feasible_spawnpoints(unit.get_nodebase()) != []
 
-                    if self.map_model.get_money(unit.get_team()) >= 20:
+            if unit_is_hero:
 
-                        movement_value = int(1000*terrain)
+                if unit.get_health() < int(unit.get_max_health()/2):
+
+                    health = unit.get_health()
+                    max_health = unit.get_max_health()
+                    health_percentage = int((float(health)/float(max_health))*100)
+                    multiplier = 50 - health_percentage
+
+                    distance_to_nearest_enemy = self.map_model.movements_between_positions(tile, nearest_enemy_unit.get_nodebase())
+
+                    if terrain_is_structure and enough_gold_for_unit and exist_feasible_spawnpoints:
+                        
+                        movement_value = multiplier*(int(Constants.IA_STRUCTURE_MOVEMENT_VALUE*terrain) + distance_to_nearest_enemy + (self.map_model.distance_to_nearest_structure(unit.get_nodebase()) - self.map_model.distance_to_nearest_structure(tile)))
 
                     else:
+                    
+                        movement_value = multiplier*(int(Constants.IA_MOVEMENT_VALUE*terrain) + distance_to_nearest_enemy + (self.map_model.distance_to_nearest_structure(unit.get_nodebase()) - self.map_model.distance_to_nearest_structure(tile)))
+                
+                elif terrain_is_structure and enough_gold_for_unit and exist_feasible_spawnpoints:
+                        
+                    movement_value = int(Constants.IA_STRUCTURE_MOVEMENT_VALUE*terrain)
 
-                        movement_value = int(10*terrain)
                 else:
-
-                    movement_value = int(10*terrain) - self.map_model.movements_between_positions(tile, enemy_unit.get_nodebase())
+            
+                    distance_to_nearest_enemy = self.map_model.movements_between_positions(tile, nearest_enemy_unit.get_nodebase())
+                    movement_value = int(Constants.IA_MOVEMENT_VALUE*terrain) - distance_to_nearest_enemy
             
                     if self.map_model.nodebase_exists(tile, path):
 
-                        movement_value += 5
-            
-            else:
+                        movement_value += Constants.IA_BONUS_FOR_TILE_PATH
 
-                movement_value = int(10*terrain) - self.map_model.movements_between_positions(tile, enemy_unit.get_nodebase())
-            
+            else:
+                
+                distance_to_nearest_enemy = self.map_model.movements_between_positions(tile, nearest_enemy_unit.get_nodebase())
+                movement_value = int(Constants.IA_MOVEMENT_VALUE*terrain) - distance_to_nearest_enemy
+        
                 if self.map_model.nodebase_exists(tile, path):
 
-                    movement_value += 5
+                    movement_value += Constants.IA_BONUS_FOR_TILE_PATH
+
+            if movement_value < 0:
+
+                movement_value = 0
 
             movement_dictionary[(tile.get_position(), None)] = movement_value
 
-        # For every unit it can attack calculate its value
+
+        # MOVEMENT CALCULATION WITH ATTACKING FOR REACHABLE TILES
         for tile in attacking_movements:
 
             # Get the tile around the unit it can attack
@@ -528,15 +593,17 @@ class Map(object):
                 attacked_unit = self.map_model.get_unit_in_position(tile)
                 movement_value = movement_dictionary[(attacking_tile.get_position(), None)]
 
-                # Calculate its value
-                if attacked_unit.get_health() == attacked_unit.get_max_health():
+                #if not (unit_is_hero and unit.get_health() < int(unit.get_max_health()/2)):
+                if unit_is_hero and unit.get_health() < int(unit.get_max_health()/2):
 
-                    movement_value += int(unit.get_damage()*terrain - 0)
+                    # Update value for attacking
+                    movement_value = int((movement_value + self.calculate_tile_value(unit, attacked_unit))*(float(float(unit.get_health())/float(unit.get_max_health()))))
 
                 else:
-                    
-                    movement_value += int((unit.get_damage()*terrain)*(attacked_unit.get_max_health() - (attacked_unit.get_health()/attacked_unit.get_max_health())))
-                
+
+                    # Update value for attacking
+                    movement_value += self.calculate_tile_value(unit, attacked_unit)
+
                 # Add this action to dictionary
                 movement_dictionary[(attacking_tile.get_position(), tile.get_position())] = movement_value
 
@@ -544,64 +611,77 @@ class Map(object):
     
 
 
+    # GET_ATTACK_DAMAGE
+    # Returns the damage a unit does when attacking
+    def get_attack_damage(self, unit, attacked_unit):
+
+        damage = unit.get_damage()
+
+        terrain_bonification = attacked_unit.get_terrain_bonus(self.map_model.get_real_map_nodebase(attacked_unit.get_position()).get_terrain_id())
+
+        return int(damage*((100.0 - terrain_bonification)/100.0))
+
+
+
     # AI_TURN
     # Manages the movement and attack of every enemy unit
     def AI_turn(self, unit):
         
-        if self.map_model.can_move(unit):
+        #if self.map_model.can_move(unit):
 
-            # Get a dictionary with all available tile and its values
-            movement_dictionary = self.get_unit_values_dictionary(unit)
-        
-            # If the dictionary is not empty
-            if movement_dictionary:
+        # Get a dictionary with all available tile and its values
+        movement_dictionary = self.get_unit_values_dictionary(unit)
+    
+        # If the dictionary is not empty
+        if movement_dictionary:
 
-                # Get the maximum value
-                best_value = max(movement_dictionary.values()) 
-                best_key = None
-                # Search for the key of the maximum value
-                for item in movement_dictionary.items():
-                    
-                    if item[1] == best_value:
-                        
-                        best_key = item[0]
-            
-                # If the best movement don't involucrate an attack
-                if best_key[1] == None:
-
-                    # Calculate the path and make the movement
-                    nodebase1 = NodeBase(unit.get_position(), unit.get_pixel_position())
-                    nodebase2 = NodeBase(best_key[0], self.map_model.get_coords_by_position(best_key[0]))
-                    path = self.map_model.get_new_path(nodebase1, nodebase2)
-                    self.start_movement(path, unit, False)
+            # Get the maximum value
+            best_value = max(movement_dictionary.values()) 
+            best_key = None
+            # Search for the key of the maximum value
+            for item in movement_dictionary.items():
                 
-                # If the best movement is an attack
-                else:
+                if item[1] == best_value:
                     
-                    # Calculate path and start movement
-                    nodebase1 = NodeBase(unit.get_position(), unit.get_pixel_position())
-                    nodebase2 = NodeBase(best_key[0], self.map_model.get_coords_by_position(best_key[0]))
-                    nodebase3 = NodeBase(best_key[1], self.map_model.get_coords_by_position(best_key[1]))
-                    path1 = self.map_model.get_new_path(nodebase1, nodebase2)
-                    path2 = [nodebase3, nodebase2]
-                    self.start_movement(path2 + path1[1:], unit, True)
+                    best_key = item[0]
+        
+            # If the best movement don't involucrate an attack
+            if best_key[1] == None:
 
-                    # Damage enemy unit
-                    attacked_unit = self.map_model.get_unit_in_position(nodebase3)
-                    attacked_unit.hurt(unit.get_damage())
+                # Calculate the path and make the movement
+                nodebase1 = NodeBase(unit.get_position(), unit.get_pixel_position())
+                nodebase2 = NodeBase(best_key[0], self.map_model.get_coords_by_position(best_key[0]))
+                path = self.map_model.get_new_path(nodebase1, nodebase2)
+                self.start_movement(path, unit, False)
+            
+            # If the best movement is an attack
+            else:
+                
+                # Calculate path and start movement
+                nodebase1 = NodeBase(unit.get_position(), unit.get_pixel_position())
+                nodebase2 = NodeBase(best_key[0], self.map_model.get_coords_by_position(best_key[0]))
+                nodebase3 = NodeBase(best_key[1], self.map_model.get_coords_by_position(best_key[1]))
+                path1 = self.map_model.get_new_path(nodebase1, nodebase2)
+                path2 = [nodebase3, nodebase2]
+                self.start_movement(path2 + path1[1:], unit, True)
 
-                    # If the enemy health is under0, it is killed and it convert to team 2
-                    if (isinstance(unit, UndeadGhost) or isinstance(unit, UndeadHero)) and attacked_unit.get_health() <= 0:
+                # Damage enemy unit
+                attacked_unit = self.map_model.get_unit_in_position(nodebase3)
+                attacked_unit.hurt(self.get_attack_damage(unit, attacked_unit))
 
-                        self.map_model.delete_unit(attacked_unit)
-                        nodebase = attacked_unit.get_nodebase()
-                        ghost = UndeadGhost(nodebase, group = unit.get_group(), team = unit.get_team())
-                        self.create_new_unit(ghost)
-                        self.map_model.earn(Constants.HUMAN_WARRIOR_COST/2, unit.get_team())
+                # If the enemy health is under0, it is killed and it convert to team 2
+                if (isinstance(unit, UndeadGhost) or isinstance(unit, UndeadHero)) and attacked_unit.get_health() <= 0:
+
+                    self.map_model.delete_unit(attacked_unit)
+                    nodebase = attacked_unit.get_nodebase()
+                    ghost = UndeadGhost(nodebase, group = unit.get_group(), team = unit.get_team())
+                    self.create_new_unit(ghost)
+                    self.map_model.earn(Constants.HUMAN_WARRIOR_COST/2, unit.get_team())
 
         if isinstance(unit, UndeadHero):
 
-            if self.map_model.get_tile_dictionary()[unit.get_nodebase().get_position()].get_terrain_id() == Constants.STRUCTURE_TERRAIN:
+            actual_standing_terrain = self.map_model.get_tile_dictionary()[unit.get_nodebase().get_position()].get_terrain_id()
+            if actual_standing_terrain == Constants.STRUCTURE_TERRAIN:
 
                 feasible_spawnpoints = self.map_model.get_feasible_spawnpoints(unit.get_nodebase())
 
@@ -609,7 +689,7 @@ class Map(object):
 
                     if self.map_model.get_money(unit.get_team()) >= Constants.UNDEAD_GHOST_COST:
 
-                        ghost = UndeadGhost(feasible_spawnpoint, unit.get_team(), False)
+                        ghost = UndeadGhost(feasible_spawnpoint, unit.get_group(), unit.get_team(), False)
                         self.create_new_unit(ghost)
                         self.map_model.spend(Constants.UNDEAD_GHOST_COST, unit.get_team())
 
@@ -648,6 +728,10 @@ class Map(object):
 
                         self.map_model.set_selected_tile(None)
 
+                    else:
+                        
+                        self.map_model.selected_tile = NodeBase(mouse_position, mouse_pixel_position, Constants.SPAWNPOINT)
+
                 else:
 
                     self.map_model.selected_tile = NodeBase(mouse_position, mouse_pixel_position, Constants.SPAWNPOINT)
@@ -667,13 +751,45 @@ class Map(object):
             self.map_view.print_selected_tile(self.map_model.get_selected_tile())
 
 
+
     # SAVEGAME
     # Saves an instance of the actual map to txt
     def savegame(self):
 
-        savegame_name = "savegame" + str(self.savegame_number)
-        self.map_model.save_map(savegame_name)
-        self.savegame_number = self.savegame_number + 1
+        if Constants.SAVEGAMES:
+
+            savegame_name = "savegame" + str(self.savegame_number)
+            self.map_model.save_map(savegame_name)
+            self.savegame_number = self.savegame_number + 1
+
+
+
+    # PRINT_TERRAIN_BONUS
+    # Prints in the hexagon where the mouse is the terrain bonus for the selected unit
+    def print_terrain_bonus(self):
+
+        selected_unit = self.map_model.get_selected_unit()  
+        mouse_pixel_position = self.map_model.closest_hexagon(pygame.mouse.get_pos())
+        mouse_position = self.map_model.get_position_by_coords(mouse_pixel_position)
+        map_nodebase = self.map_model.get_tile_dictionary()
+
+        if mouse_position in self.map_model.get_tile_dictionary().keys() and selected_unit != None:
+        
+            terrain_bonus = selected_unit.get_terrain_bonus(map_nodebase[mouse_position].get_terrain_id())
+
+            if not self.map_model.occupied(mouse_position):
+
+                if terrain_bonus < 40.0:
+
+                    self.map_view.print_terrain_bonus(mouse_pixel_position, terrain_bonus, Constants.RED)
+
+                elif terrain_bonus < 60.0:
+
+                    self.map_view.print_terrain_bonus(mouse_pixel_position, terrain_bonus, Constants.GOLD)
+
+                else:
+
+                    self.map_view.print_terrain_bonus(mouse_pixel_position, terrain_bonus, Constants.GREEN)
 
 
 
@@ -683,7 +799,8 @@ class Map(object):
 
         # Draw map tiles
         self.map_view.draw_map(self.map_model.get_tile_dictionary())
-        self.map_view.print_money(self.map_model.get_money())
+        self.map_view.print_money(self.map_model.get_money(1))
+        self.map_view.print_money(self.map_model.get_money(2), (505, 38))
 
         # Checks new button
         if self.map_view.new_button_pushed():
@@ -719,6 +836,7 @@ class Map(object):
 
                 # Draw an hexagon where the mouse pointer is
                 self.print_mouse_hexagon()
+                self.print_terrain_bonus()
 
                 # Gets and prints the attacking hexagons
                 self.get_attack_movements()

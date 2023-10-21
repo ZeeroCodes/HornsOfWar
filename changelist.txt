@@ -1,18 +1,134 @@
 *************************************************************************
 
+V : 00.02.00
+
+Who : Raul Calatayud Ferre
+
+Date : 21 / 10 / 2023
+
+Description : 
+
+    - Implemented savegames for game debugging
+    - Now the game and the Map Editor have the same saved map format.
+    - Fixed a problem with surrounded units that crashed or not attacked.
+    - New IA for combat
+    - Solved bug of IA nits not attacking when surrounded
+    - Fixed BUG recruiting tile not changing when one is pushed while another is selected
+    - Adjusted damage and health of UndeadGhost and HumanWarrior
+    - Fixed random damage and life for each new unit
+    - Solved a BUG that the IA Hero was not able to turn back to the structure while being low of health
+    - Adjusted unit stats
+    - Modifying IA for IA Heroes to run when they are low in health.
+
+*************************************************************************
+
+V : 00.01.07
+
+Who : Raul Calatayud Ferre
+
+Date : 21 / 10 / 2023
+
+Description : 
+
+    - Solved a BUG that the IA Hero was not able to turn back to the structure while being low of health
+    - Adjusted unit stats
+    - Modifying IA for IA Heroes to run when they are low in health.
+
+*************************************************************************
+
+V : 00.01.06
+
+Who : Raul Calatayud Ferre
+
+Date : 21 / 10 / 2023
+
+Description : 
+
+    - Adjusted damage and health of UndeadGhost and HumanWarrior
+    - Fixed random damage and life for each new unit
+
+*************************************************************************
+
+V : 00.01.05
+
+Who : Raul Calatayud Ferre
+
+Date : 21 / 10 / 2023
+
+Description : 
+
+    - Fixed BUG recruiting tile not changing when one is pushed while another is selected
+
+*************************************************************************
+
+V : 00.01.04
+
+Who : Raul Calatayud Ferre
+
+Date : 21 / 10 / 2023
+
+Description : 
+
+    - Solved bug of IA nits not attacking when surrounded
+
+*************************************************************************
+
+V : 00.01.03
+
+Who : Raul Calatayud Ferre
+
+Date : 18 / 10 / 2023
+
+Description : 
+
+    - New IA for combat
+
+*************************************************************************
+
+V : 00.01.02
+
+Who : Raul Calatayud Ferre
+
+Date : 16 / 10 / 2023
+
+Description : 
+
+    - Fixed a problem with surrounded units that crashed or not attacked.
+
+*************************************************************************
+
+V : 00.01.01
+
+Who : Raul Calatayud Ferre
+
+Date : 16 / 10 / 2023
+
+Description : 
+
+    - Implemented savegames for game debugging
+    - Now the game and the Map Editor have the same saved map format.
+
+*************************************************************************
+
 V : 00.01.00
 
 Who : Raul Calatayud Ferre
 
 Date : 1 / 10 / 2023
 
-Commit number: -
-
-Task number : -
-
 Description : 
 
-    - New medium version
+    - Added new button for ending turn of the player
+    - Little modification on normal units IA
+    - Added IA units recruiting with heroes
+    - Added new IA for Heroes controlled by IA
+    - Little modification on normal units IA
+    - Added IA units recruiting with heroes
+    - Added new tile : Structure, future position where Heroes can rcruit
+    - Added dirt tile as a provisional recruiting tile
+    - Modified test_map for recruiting positions
+    - Added new Heroes : UndeadHero and HumanHero
+    - Fixed bug where the IA unit didn't move when no enemy units in range
 
 *************************************************************************
 
@@ -21,10 +137,6 @@ V : 00.00.05
 Who : Raul Calatayud Ferre
 
 Date : 1 / 10 / 2023
-
-Commit number: b0432fa48a0a59e552a677216a9ddcd8cd010b6d
-
-Task number : 4466
 
 Description : 
 
@@ -40,10 +152,6 @@ Who : Raul Calatayud Ferre
 
 Date : 30 / 09 / 2023
 
-Commit number: a23084f8e927a5d98d79d5c5252b7f5eaa3c57c1
-
-Task number : 4459 - 4465
-
 Description : 
 
     - Added new IA for Heroes controlled by IA
@@ -57,10 +165,6 @@ V : 00.00.03
 Who : Raul Calatayud Ferre
 
 Date : 28 / 09 / 2023
-
-Commit number: xxx
-
-Task number : 4455
 
 Description : 
 
@@ -76,10 +180,6 @@ Who : Raul Calatayud Ferre
 
 Date : 26 / 09 / 2023
 
-Commit number: xxx
-
-Task number : 4454
-
 Description : 
 
     - Added new Heroes : UndeadHero and HumanHero
@@ -91,10 +191,6 @@ V : 00.00.01
 Who : Raul Calatayud Ferre
 
 Date : 25 / 09 / 2023
-
-Commit number: xxx
-
-Task number : 4449
 
 Description : 
 
@@ -108,10 +204,6 @@ Who : Raul Calatayud Ferre
 
 Date : xx / xx / 2022
 
-Commit number: xxx
-
-Task number : xxxx
-
 Description : First developing of game, map creation, unit movement and combat
 
 *************************************************************************
@@ -122,10 +214,6 @@ V : 00.00.00 (game_version.big_feature.feature)
 Who : Raul Calatayud Ferre
 
 Date : D / M / Y
-
-Commit number: xxx
-
-Task number : xxxx
 
 Description : 
 
