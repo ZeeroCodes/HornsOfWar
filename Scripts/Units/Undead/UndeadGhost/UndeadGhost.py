@@ -15,8 +15,21 @@ terrain_bonuses = {Constants.GRASS_TERRAIN:     60.0,
                    Constants.SWAMP_TERRAIN:     60.0}
 
 class UndeadGhost(Undead):
-    def __init__(self, position = NodeBase((0,0), (50,150)), group = 2, team = 2, friendly = True, max_health = random.randint(40, 65), damage = random.randrange(10,20), movement = 2, level = 1):
-        super().__init__("Ghost\\undead_ghost.png", position, group, team, friendly, max_health, damage, movement)
+
+    def __init__(self, position = NodeBase((0,0), (50,150)), group = 2, team = 2, friendly = True, max_health = None, damage = None, movement = 3, level = 1):
+        
+        self.max_health = max_health
+        self.damage = damage
+
+        if max_health == None:
+
+            self.max_health = random.randint(Constants.MIN_UNDEAD_GHOST_MAX_HEALTH, Constants.MAX_UNDEAD_GHOST_MAX_HEALTH)
+
+        if damage == None:
+        
+            self.damage = random.randrange(Constants.MIN_UNDEAD_GHOST_DAMAGE, Constants.MAX_UNDEAD_GHOST_DAMAGE)
+
+        super().__init__("Ghost\\undead_ghost.png", position, group, team, friendly, self.max_health, self.damage, movement)
         self.level = level
         super().set_id("211")
 

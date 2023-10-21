@@ -17,8 +17,21 @@ terrain_bonuses = {Constants.GRASS_TERRAIN:     60.0,
                    Constants.SWAMP_TERRAIN:     30.0}
 
 class HumanHero(Human):
-    def __init__(self, position = NodeBase((0,0), (50,150)), group = 1, team = 1 ,friendly = True, max_health = random.randint(100, 150), damage = random.randrange(25,40), movement = 3, level = 1):
-        super().__init__("Warrior\\human_warrior.png", position, group, team, friendly, max_health, damage, movement, terrain_bonuses)
+
+    def __init__(self, position = NodeBase((0,0), (50,150)), group = 1, team = 1 ,friendly = True, max_health = None, damage = None, movement = 3, level = 1):
+        
+        self.max_health = max_health
+        self.damage = damage
+
+        if max_health == None:
+
+            self.max_health = random.randint(Constants.MIN_HUMAN_HERO_MAX_HEALTH, Constants.MAX_HUMAN_HERO_MAX_HEALTH)
+
+        if damage == None:
+        
+            self.damage = random.randrange(Constants.MIN_HUMAN_HERO_DAMAGE, Constants.MAX_HUMAN_HERO_DAMAGE)
+        
+        super().__init__("Warrior\\human_warrior.png", position, group, team, friendly, self.max_health, self.damage, movement, terrain_bonuses)
         self.level = level
         self.crown_image = pygame.image.load(os.path.abspath(os.getcwd()) + '\Images\Crown.png')
         self.crown_image = pygame.transform.scale(self.crown_image, (15, 10))

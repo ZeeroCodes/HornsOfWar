@@ -17,7 +17,19 @@ terrain_bonuses = {Constants.GRASS_TERRAIN:     60.0,
                    Constants.SWAMP_TERRAIN:     60.0}
 
 class UndeadHero(Undead):
-    def __init__(self, position = NodeBase((0,0), (50,150)), group = 1, team = 1, friendly = True, max_health = random.randint(80, 100), damage = random.randrange(15,25), movement = 4, level = 1):
+    def __init__(self, position = NodeBase((0,0), (50,150)), group = 1, team = 1, friendly = True, max_health = None, damage = None, movement = 4, level = 1):
+        
+        self.max_health = max_health
+        self.damage = damage
+
+        if max_health == None:
+
+            self.max_health = random.randint(Constants.MIN_UNDEAD_HERO_MAX_HEALTH, Constants.MIN_UNDEAD_HERO_MAX_HEALTH)
+
+        if damage == None:
+        
+            self.damage = random.randrange(Constants.MIN_UNDEAD_HERO_DAMAGE, Constants.MAX_UNDEAD_HERO_DAMAGE)
+        
         super().__init__("Ghost\\undead_ghost.png", position, group, team, friendly, max_health, damage, movement)
         self.level = level
         self.crown_image = pygame.image.load(os.path.abspath(os.getcwd()) + '\Images\Crown.png')
