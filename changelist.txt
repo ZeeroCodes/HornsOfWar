@@ -1,5 +1,17 @@
 *************************************************************************
 
+V : 00.01.04
+
+Who : Raul Calatayud Ferre
+
+Date : 21 / 10 / 2023
+
+Description : 
+
+    - Solved bug of IA nits not attacking when surrounded
+
+*************************************************************************
+
 V : 00.01.03
 
 Who : Raul Calatayud Ferre

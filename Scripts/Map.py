@@ -520,8 +520,9 @@ class Map(object):
             terrain_is_structure = tile.get_terrain_id() == Constants.STRUCTURE_TERRAIN 
             unit_is_hero = isinstance(unit, HumanHero) or isinstance(unit, UndeadHero)
             enough_gold_for_unit = self.map_model.get_money(unit.get_team()) >= Constants.HUMAN_WARRIOR_COST
+            exist_feasible_spawnpoints = self.map_model.get_feasible_spawnpoints(unit.get_nodebase()) != []
 
-            if terrain_is_structure and unit_is_hero and enough_gold_for_unit:
+            if terrain_is_structure and unit_is_hero and enough_gold_for_unit and exist_feasible_spawnpoints:
                     
                     movement_value = int(Constants.IA_STRUCTURE_MOVEMENT_VALUE*terrain)
 
@@ -589,56 +590,56 @@ class Map(object):
     # Manages the movement and attack of every enemy unit
     def AI_turn(self, unit):
         
-        if self.map_model.can_move(unit):
+        #if self.map_model.can_move(unit):
 
-            # Get a dictionary with all available tile and its values
-            movement_dictionary = self.get_unit_values_dictionary(unit)
-        
-            # If the dictionary is not empty
-            if movement_dictionary:
+        # Get a dictionary with all available tile and its values
+        movement_dictionary = self.get_unit_values_dictionary(unit)
+    
+        # If the dictionary is not empty
+        if movement_dictionary:
 
-                # Get the maximum value
-                best_value = max(movement_dictionary.values()) 
-                best_key = None
-                # Search for the key of the maximum value
-                for item in movement_dictionary.items():
-                    
-                    if item[1] == best_value:
-                        
-                        best_key = item[0]
-            
-                # If the best movement don't involucrate an attack
-                if best_key[1] == None:
-
-                    # Calculate the path and make the movement
-                    nodebase1 = NodeBase(unit.get_position(), unit.get_pixel_position())
-                    nodebase2 = NodeBase(best_key[0], self.map_model.get_coords_by_position(best_key[0]))
-                    path = self.map_model.get_new_path(nodebase1, nodebase2)
-                    self.start_movement(path, unit, False)
+            # Get the maximum value
+            best_value = max(movement_dictionary.values()) 
+            best_key = None
+            # Search for the key of the maximum value
+            for item in movement_dictionary.items():
                 
-                # If the best movement is an attack
-                else:
+                if item[1] == best_value:
                     
-                    # Calculate path and start movement
-                    nodebase1 = NodeBase(unit.get_position(), unit.get_pixel_position())
-                    nodebase2 = NodeBase(best_key[0], self.map_model.get_coords_by_position(best_key[0]))
-                    nodebase3 = NodeBase(best_key[1], self.map_model.get_coords_by_position(best_key[1]))
-                    path1 = self.map_model.get_new_path(nodebase1, nodebase2)
-                    path2 = [nodebase3, nodebase2]
-                    self.start_movement(path2 + path1[1:], unit, True)
+                    best_key = item[0]
+        
+            # If the best movement don't involucrate an attack
+            if best_key[1] == None:
 
-                    # Damage enemy unit
-                    attacked_unit = self.map_model.get_unit_in_position(nodebase3)
-                    attacked_unit.hurt(self.get_attack_damage(unit, attacked_unit))
+                # Calculate the path and make the movement
+                nodebase1 = NodeBase(unit.get_position(), unit.get_pixel_position())
+                nodebase2 = NodeBase(best_key[0], self.map_model.get_coords_by_position(best_key[0]))
+                path = self.map_model.get_new_path(nodebase1, nodebase2)
+                self.start_movement(path, unit, False)
+            
+            # If the best movement is an attack
+            else:
+                
+                # Calculate path and start movement
+                nodebase1 = NodeBase(unit.get_position(), unit.get_pixel_position())
+                nodebase2 = NodeBase(best_key[0], self.map_model.get_coords_by_position(best_key[0]))
+                nodebase3 = NodeBase(best_key[1], self.map_model.get_coords_by_position(best_key[1]))
+                path1 = self.map_model.get_new_path(nodebase1, nodebase2)
+                path2 = [nodebase3, nodebase2]
+                self.start_movement(path2 + path1[1:], unit, True)
 
-                    # If the enemy health is under0, it is killed and it convert to team 2
-                    if (isinstance(unit, UndeadGhost) or isinstance(unit, UndeadHero)) and attacked_unit.get_health() <= 0:
+                # Damage enemy unit
+                attacked_unit = self.map_model.get_unit_in_position(nodebase3)
+                attacked_unit.hurt(self.get_attack_damage(unit, attacked_unit))
 
-                        self.map_model.delete_unit(attacked_unit)
-                        nodebase = attacked_unit.get_nodebase()
-                        ghost = UndeadGhost(nodebase, group = unit.get_group(), team = unit.get_team())
-                        self.create_new_unit(ghost)
-                        self.map_model.earn(Constants.HUMAN_WARRIOR_COST/2, unit.get_team())
+                # If the enemy health is under0, it is killed and it convert to team 2
+                if (isinstance(unit, UndeadGhost) or isinstance(unit, UndeadHero)) and attacked_unit.get_health() <= 0:
+
+                    self.map_model.delete_unit(attacked_unit)
+                    nodebase = attacked_unit.get_nodebase()
+                    ghost = UndeadGhost(nodebase, group = unit.get_group(), team = unit.get_team())
+                    self.create_new_unit(ghost)
+                    self.map_model.earn(Constants.HUMAN_WARRIOR_COST/2, unit.get_team())
 
         if isinstance(unit, UndeadHero):
 

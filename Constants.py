@@ -16,7 +16,7 @@ UNIT_DICTIONARY =   {   '110': 'HumanHero',
                         '211': 'UndeadGhost'
                     }
 
-SAVEGAMES                       = False
+SAVEGAMES                       = True
 
 RADIUS                          = 50
 
@@ -38,7 +38,7 @@ IA_INITIAL_MONEY                = 100
 HUMAN_WARRIOR_COST              = 20
 UNDEAD_GHOST_COST               = 10
 
-MOVEMENT_SPEED                  = 2  # 1 = Fast   /   2 = Medium   /   3 = Slow
+MOVEMENT_SPEED                  = 3  # 1 = Fast   /   2 = Medium   /   3 = Slow
 
 IA_MOVEMENT_VALUE               = 100
 IA_STRUCTURE_MOVEMENT_VALUE     = 1000
