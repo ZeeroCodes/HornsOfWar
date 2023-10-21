@@ -800,7 +800,7 @@ class Map(object):
         # Draw map tiles
         self.map_view.draw_map(self.map_model.get_tile_dictionary())
         self.map_view.print_money(self.map_model.get_money(1))
-        self.map_view.print_money(self.map_model.get_money(2), (505, 38))
+        #self.map_view.print_money(self.map_model.get_money(2), (505, 38))
 
         # Checks new button
         if self.map_view.new_button_pushed():
