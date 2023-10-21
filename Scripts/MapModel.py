@@ -1115,7 +1115,54 @@ class MapModel(object):
             f.close()
 
 
+    def get_nearest_structure(self, map_position):
 
+        position = map_position
+
+        if isinstance(map_position, NodeBase):
+
+            position = map_position.get_position()
+
+        structure_dictionary = dict()
+        tile_dictionary = self.get_tile_dictionary()
+
+        for key in tile_dictionary.keys():
+
+            if tile_dictionary[key].get_terrain_id() == Constants.STRUCTURE_TERRAIN:
+
+                structure_dictionary[key] = deepcopy(tile_dictionary[key])
+
+        if structure_dictionary:
+
+            min_distance_key = list(structure_dictionary.keys())[0]
+            min_distance = self.map_data.get_rows()*self.map_data.get_cols()
+
+            for key in structure_dictionary.keys():
+                
+                distance_to_structure = self.movements_between_positions(position, structure_dictionary[key].get_position())
+
+                if distance_to_structure < min_distance:
+
+                    min_distance = distance_to_structure
+                    min_distance_key = key
+
+            return deepcopy(structure_dictionary[min_distance_key])
+
+        return None
+
+
+
+    def distance_to_nearest_structure(self, map_position):
+
+        position = map_position
+
+        if isinstance(map_position, NodeBase):
+
+            position = map_position.get_position()
+
+        nearest_structure = self.get_nearest_structure(position)
+
+        return self.movements_between_positions(nearest_structure.get_position(), position)
     
 
         

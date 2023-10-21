@@ -8,7 +8,7 @@ class App:
     # INIT
     def __init__(self):
         #self.hex_map = Map("testMap",(1366, 768))
-        self.hex_map = Map("new_map")
+        self.hex_map = Map("savegame9")
         self.running = 1
         self.update_app()
 

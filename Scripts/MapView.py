@@ -75,8 +75,8 @@ class MapView(object):
 
     def print_winner_team(self, team):
 
-        img = self.font.render("Wins team " + str(team), False, Constants.BLACK)
-        pixel_position = (300, 25)
+        img = self.winning_font.render("Wins team " + str(team), False, Constants.BLACK)
+        pixel_position = (700, 25)
         self.screen.blit(img, pixel_position)
 
 

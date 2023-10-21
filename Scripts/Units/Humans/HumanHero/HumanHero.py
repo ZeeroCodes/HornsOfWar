@@ -14,7 +14,8 @@ terrain_bonuses = {Constants.GRASS_TERRAIN:     60.0,
                    Constants.MOUNTAIN_TERRAIN:  40.0,
                    Constants.SAND_TERRAIN:      50.0,
                    Constants.DIRT_TERRAIN:      60.0,
-                   Constants.SWAMP_TERRAIN:     30.0}
+                   Constants.SWAMP_TERRAIN:     30.0,
+                   Constants.STRUCTURE_TERRAIN: 80.0}
 
 class HumanHero(Human):
 

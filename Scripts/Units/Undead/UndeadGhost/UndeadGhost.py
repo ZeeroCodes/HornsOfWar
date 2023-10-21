@@ -12,7 +12,8 @@ terrain_bonuses = {Constants.GRASS_TERRAIN:     60.0,
                    Constants.MOUNTAIN_TERRAIN:  50.0,
                    Constants.SAND_TERRAIN:      60.0,
                    Constants.DIRT_TERRAIN:      60.0,
-                   Constants.SWAMP_TERRAIN:     60.0}
+                   Constants.SWAMP_TERRAIN:     60.0,
+                   Constants.STRUCTURE_TERRAIN: 80.0}
 
 class UndeadGhost(Undead):
 
@@ -29,7 +30,7 @@ class UndeadGhost(Undead):
         
             self.damage = random.randrange(Constants.MIN_UNDEAD_GHOST_DAMAGE, Constants.MAX_UNDEAD_GHOST_DAMAGE)
 
-        super().__init__("Ghost\\undead_ghost.png", position, group, team, friendly, self.max_health, self.damage, movement)
+        super().__init__("Ghost\\undead_ghost.png", position, group, team, friendly, self.max_health, self.damage, movement, terrain_bonuses)
         self.level = level
         super().set_id("211")
 

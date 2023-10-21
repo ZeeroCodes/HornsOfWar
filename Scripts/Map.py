@@ -499,9 +499,6 @@ class Map(object):
     # Return a dictionary of all available tiles and actions and a value for each of them
     def get_unit_values_dictionary(self, unit):
 
-        unit_terrain = self.map_model.get_real_map_nodebase(unit.get_position())
-        terrain = float(unit.get_terrain_bonus(unit_terrain)/100.0) # Value of the terrain, until different terrains it is 1
-        
         # Get available movements and units that the unit can attack
         movement_dictionary = dict()
         available_movements = self.map_model.get_movement_positions(unit)
@@ -517,14 +514,46 @@ class Map(object):
         # MOVEMENT CALCULATION WITHOUT ATTACKING FOR REACHABLE TILES
         for tile in available_movements:
 
+            real_nodebase = self.map_model.get_real_map_nodebase(tile.get_position())
+            terrain = float(unit.get_terrain_bonus(real_nodebase.get_terrain_id())/100.0) # Value of the terrain, until different terrains it is 1
+        
+
             terrain_is_structure = tile.get_terrain_id() == Constants.STRUCTURE_TERRAIN 
             unit_is_hero = isinstance(unit, HumanHero) or isinstance(unit, UndeadHero)
             enough_gold_for_unit = self.map_model.get_money(unit.get_team()) >= Constants.HUMAN_WARRIOR_COST
             exist_feasible_spawnpoints = self.map_model.get_feasible_spawnpoints(unit.get_nodebase()) != []
 
-            if terrain_is_structure and unit_is_hero and enough_gold_for_unit and exist_feasible_spawnpoints:
+            if unit_is_hero:
+
+                if unit.get_health() < int(unit.get_max_health()/2):
+
+                    health = unit.get_health()
+                    max_health = unit.get_max_health()
+                    health_percentage = int((float(health)/float(max_health))*100)
+                    multiplier = 50 - health_percentage
+
+                    distance_to_nearest_enemy = self.map_model.movements_between_positions(tile, nearest_enemy_unit.get_nodebase())
+
+                    if terrain_is_structure and enough_gold_for_unit and exist_feasible_spawnpoints:
+                        
+                        movement_value = multiplier*(int(Constants.IA_STRUCTURE_MOVEMENT_VALUE*terrain) + distance_to_nearest_enemy + (self.map_model.distance_to_nearest_structure(unit.get_nodebase()) - self.map_model.distance_to_nearest_structure(tile)))
+
+                    else:
                     
+                        movement_value = multiplier*(int(Constants.IA_MOVEMENT_VALUE*terrain) + distance_to_nearest_enemy + (self.map_model.distance_to_nearest_structure(unit.get_nodebase()) - self.map_model.distance_to_nearest_structure(tile)))
+                
+                elif terrain_is_structure and enough_gold_for_unit and exist_feasible_spawnpoints:
+                        
                     movement_value = int(Constants.IA_STRUCTURE_MOVEMENT_VALUE*terrain)
+
+                else:
+            
+                    distance_to_nearest_enemy = self.map_model.movements_between_positions(tile, nearest_enemy_unit.get_nodebase())
+                    movement_value = int(Constants.IA_MOVEMENT_VALUE*terrain) - distance_to_nearest_enemy
+            
+                    if self.map_model.nodebase_exists(tile, path):
+
+                        movement_value += Constants.IA_BONUS_FOR_TILE_PATH
 
             else:
                 
@@ -564,8 +593,16 @@ class Map(object):
                 attacked_unit = self.map_model.get_unit_in_position(tile)
                 movement_value = movement_dictionary[(attacking_tile.get_position(), None)]
 
-                # Update value for attacking
-                movement_value += self.calculate_tile_value(unit, attacked_unit)
+                #if not (unit_is_hero and unit.get_health() < int(unit.get_max_health()/2)):
+                if unit_is_hero and unit.get_health() < int(unit.get_max_health()/2):
+
+                    # Update value for attacking
+                    movement_value = int((movement_value + self.calculate_tile_value(unit, attacked_unit))*(float(float(unit.get_health())/float(unit.get_max_health()))))
+
+                else:
+
+                    # Update value for attacking
+                    movement_value += self.calculate_tile_value(unit, attacked_unit)
 
                 # Add this action to dictionary
                 movement_dictionary[(attacking_tile.get_position(), tile.get_position())] = movement_value
